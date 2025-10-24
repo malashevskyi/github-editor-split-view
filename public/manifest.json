@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "GitHub Editor Split View",
+  "version": "1.0.0",
+  "description": "Splits the GitHub editor into a side-by-side Write and Preview view.",
+  "content_scripts": [
+    {
+      "matches": [
+        "https://github.com/*/*/issues/*",
+        "https://github.com/*/*/pull/*"
+      ],
+      "js": ["content.js"]
+    }
+  ],
+  "icons": {}
+}
