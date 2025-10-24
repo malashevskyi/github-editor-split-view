@@ -1,3 +1,5 @@
+import { triggerInputEvent } from './triggerInputEvent';
+
 /**
  * Handles manual text formatting for the cloned toolbar.
  *
@@ -91,6 +93,9 @@ export function formatText(formatType: string): void {
       textarea.value = textBefore + newSelectedText + textAfter;
       textarea.selectionStart = start;
       textarea.selectionEnd = start + newSelectedText.length;
+
+      triggerInputEvent(textarea);
+
       textarea.focus();
       return;
     }
@@ -123,9 +128,7 @@ export function formatText(formatType: string): void {
     textarea.selectionEnd = start + replacement.length;
   }
 
-  // Trigger input event so external listeners detect the change
-  const inputEvent = new Event('input', { bubbles: true });
-  textarea.dispatchEvent(inputEvent);
+  triggerInputEvent(textarea);
 
   textarea.focus();
 }
