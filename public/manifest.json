@@ -9,7 +9,8 @@
         "https://github.com/*/*/issues/*",
         "https://github.com/*/*/pull/*"
       ],
-      "js": ["content.js"]
+      "js": ["content.js"],
+      "css": ["content.css"]
     }
   ],
   "icons": {}
