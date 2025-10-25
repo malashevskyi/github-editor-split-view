@@ -1,3 +1,5 @@
+import { getFormatSymbols } from './getFormatSymbols';
+import { getTextareaSelection } from './getTextareaSelection';
 import { triggerInputEvent } from './triggerInputEvent';
 
 /**
@@ -9,69 +11,19 @@ import { triggerInputEvent } from './triggerInputEvent';
  *
  * This function just add Markdown symbols to the write area
  *
- * @param formatType The type of Markdown formatting to apply (e.g., 'bold', 'italic').
+ * @param formatType The type of Markdown formatting to apply (e.g., 'bold', 'italic'),
+ * @param textarea The textarea element where the formatting should be applied.
  */
 
-export function formatText(formatType: string): void {
-  const textarea: HTMLTextAreaElement | null = document.querySelector(
-    'textarea[aria-label="Markdown value"]'
-  );
-  if (!textarea) return;
+export function formatText(
+  formatType: string,
+  textarea: HTMLTextAreaElement
+): void {
+  const selection = getTextareaSelection(textarea);
+  if (!selection) return;
 
-  const start = textarea.selectionStart;
-  const end = textarea.selectionEnd;
-  const fullText = textarea.value;
-  const selectedText = fullText.substring(start, end);
-
-  let prefix = '',
-    suffix = '';
-  let isMultilineFormat = false;
-
-  switch (formatType) {
-    case 'heading':
-      prefix = '### ';
-      suffix = '';
-      break;
-    case 'bold':
-      prefix = '**';
-      suffix = '**';
-      break;
-    case 'italic':
-      prefix = '_';
-      suffix = '_';
-      break;
-    case 'quote':
-      prefix = '> ';
-      suffix = '';
-      isMultilineFormat = true;
-      break;
-    case 'code':
-      prefix = '`';
-      suffix = '`';
-      break;
-    case 'link':
-      prefix = '[';
-      suffix = '](url)';
-      break;
-    case 'ul':
-      prefix = '- ';
-      suffix = '';
-      isMultilineFormat = true;
-      break;
-    case 'ol':
-      prefix = '1. ';
-      suffix = '';
-      isMultilineFormat = true;
-      break;
-    case 'task':
-      prefix = '- [ ] ';
-      suffix = '';
-      isMultilineFormat = true;
-      break;
-  }
-
-  const textBefore = fullText.substring(0, start);
-  const textAfter = fullText.substring(end);
+  const { selectedText, beforeText, afterText, start } = selection;
+  const { prefix, suffix, isMultilineFormat } = getFormatSymbols(formatType);
 
   if (selectedText.length > 0) {
     let shouldUnformat = false;
@@ -90,7 +42,7 @@ export function formatText(formatType: string): void {
         prefix.length,
         selectedText.length - suffix.length
       );
-      textarea.value = textBefore + newSelectedText + textAfter;
+      textarea.value = beforeText + newSelectedText + afterText;
       textarea.selectionStart = start;
       textarea.selectionEnd = start + newSelectedText.length;
 
@@ -104,7 +56,7 @@ export function formatText(formatType: string): void {
   let replacement = '';
   if (selectedText.length === 0) {
     replacement = prefix + suffix;
-    textarea.value = textBefore + replacement + textAfter;
+    textarea.value = beforeText + replacement + afterText;
     textarea.selectionStart = textarea.selectionEnd = start + prefix.length;
   } else {
     const isSelectionMultiline = selectedText.includes('\n');
@@ -123,7 +75,7 @@ export function formatText(formatType: string): void {
     } else {
       replacement = prefix + selectedText + suffix;
     }
-    textarea.value = textBefore + replacement + textAfter;
+    textarea.value = beforeText + replacement + afterText;
     textarea.selectionStart = start;
     textarea.selectionEnd = start + replacement.length;
   }

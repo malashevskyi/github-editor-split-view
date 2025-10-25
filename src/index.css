@@ -1,0 +1,41 @@
+.split-view-button-custom {
+  background-color: var(
+    --button-primary-bgColor-rest,
+    var(--color-btn-primary-bg)
+  );
+  border-width: 1px;
+  border-style: solid;
+  border-color: var(
+    --button-primary-borderColor-rest,
+    var(--color-btn-primary-border)
+  );
+  color: white;
+  padding: 5px 16px;
+  font-size: 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.esv-toolbar-button {
+  color: var(--fgColor-muted);
+  border-width: 0;
+  box-shadow: none;
+  background-color: initial;
+  transition: background-color 0.2s;
+  border-radius: 6px;
+  padding: 0;
+  height: 28px;
+  width: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.esv-toolbar-button:hover {
+  background-color: var(
+    --button-invisible-bgColor-hover,
+    var(--color-action-list-item-default-hover-bg)
+  );
+}
