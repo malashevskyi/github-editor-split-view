@@ -39,3 +39,8 @@
     var(--color-action-list-item-default-hover-bg)
   );
 }
+
+/* Hide loading spinner in preview */
+html body div[class^="MarkdownEditor-module"] span[class^="prc-Spinner-Box"] {
+  display: none !important;
+}

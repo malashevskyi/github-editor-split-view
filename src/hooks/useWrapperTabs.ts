@@ -1,27 +1,18 @@
 import { useEffect, useState } from "react";
+import { findHeader } from "../utils/editorSelectors";
+import { SELECTORS } from "../constants/selectors";
 
 export const useWrapperTabs = (wrapper: HTMLElement) => {
   const [isPreviewActive, setIsPreviewActive] = useState(false);
 
   useEffect(() => {
-    // Try to find header for issues/PR/comments
-    let header = wrapper.querySelector<HTMLElement>(
-      ':scope > [class^="MarkdownEditor-module__header"]',
-    );
-
-    // If not found, try to find header for README editor
-    if (!header) {
-      header = wrapper.querySelector<HTMLElement>(
-        '[class^="BlobEditHeader-module__Box"]',
-      );
-    }
-
+    const header = findHeader(wrapper);
     if (!header) return;
 
     const checkTab = () => {
       // Check for regular tabs (issues/PR/comments)
       let previewTab = header!.querySelector<HTMLButtonElement>(
-        'button[role="tab"]:nth-child(2)',
+        SELECTORS.TAB_BUTTON,
       );
 
       let isActive =
@@ -32,13 +23,13 @@ export const useWrapperTabs = (wrapper: HTMLElement) => {
       // If not found, check for SegmentedControl tabs (README editor)
       if (!previewTab) {
         const segmentedControlItems = header!.querySelectorAll<HTMLElement>(
-          '[class^="prc-SegmentedControl-Item"]',
+          SELECTORS.SEGMENTED_CONTROL_ITEM,
         );
 
         // Find the Preview tab (usually second item)
         segmentedControlItems.forEach((item, index) => {
-          const button = item.querySelector("button");
-          const textElement = button?.querySelector("[data-text]");
+          const button = item.querySelector(SELECTORS.TAB_BUTTON_INNER);
+          const textElement = button?.querySelector(SELECTORS.TAB_TEXT);
           const text =
             textElement?.getAttribute("data-text") || textElement?.textContent;
 
@@ -58,15 +49,13 @@ export const useWrapperTabs = (wrapper: HTMLElement) => {
     const tabObserver = new MutationObserver(checkTab);
 
     // Observe tablist for regular tabs
-    const tabList = header.querySelector('[role="tablist"]');
+    const tabList = header.querySelector(SELECTORS.TAB_LIST);
     if (tabList) {
       tabObserver.observe(tabList, { attributes: true, subtree: true });
     }
 
     // Observe SegmentedControl for README editor
-    const segmentedControl = header.querySelector(
-      '[class^="prc-SegmentedControl"]',
-    );
+    const segmentedControl = header.querySelector(SELECTORS.SEGMENTED_CONTROL);
     if (segmentedControl) {
       tabObserver.observe(segmentedControl, {
         attributes: true,

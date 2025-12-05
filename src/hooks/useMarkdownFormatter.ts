@@ -1,17 +1,31 @@
-import { useEffect, useState } from 'react';
-import { formatText } from '../utils/formatText';
+import { useEffect, useState } from "react";
+import { formatMarkdown } from "../utils/formatMarkdown";
+import { findEditor } from "../utils/editorSelectors";
 
 export function useMarkdownFormatter(wrapper: HTMLElement) {
-  const [textarea, setTextarea] = useState<HTMLTextAreaElement | null>(null);
+  const [editor, setEditor] = useState<
+    HTMLTextAreaElement | HTMLElement | null
+  >(null);
 
   useEffect(() => {
-    const textarea = wrapper.querySelector<HTMLTextAreaElement>('textarea');
-    setTextarea(textarea);
+    const foundEditor = findEditor(wrapper);
+    if (foundEditor) {
+      setEditor(foundEditor);
+    }
   }, [wrapper]);
 
   const format = (type: string) => {
-    if (!textarea) return;
-    formatText(type, textarea);
+    // Use cached editor if available
+    if (editor) {
+      formatMarkdown(type, editor);
+      return;
+    }
+
+    // Otherwise, try to find editor on demand
+    const foundEditor = findEditor(wrapper);
+    if (foundEditor) {
+      formatMarkdown(type, foundEditor);
+    }
   };
 
   return format;

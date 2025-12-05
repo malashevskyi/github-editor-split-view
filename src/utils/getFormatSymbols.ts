@@ -1,3 +1,5 @@
+import { FORMAT_TYPES } from "../constants/formatTypes";
+
 interface FormatSymbols {
   prefix: string;
   suffix: string;
@@ -6,29 +8,29 @@ interface FormatSymbols {
 
 export function getFormatSymbols(formatType: string): FormatSymbols {
   switch (formatType) {
-    case 'heading':
-      return { prefix: '### ', suffix: '', isMultilineFormat: false };
-    case 'bold':
-      return { prefix: '**', suffix: '**', isMultilineFormat: false };
-    case 'italic':
-      return { prefix: '_', suffix: '_', isMultilineFormat: false };
-    case 'quote':
-      return { prefix: '> ', suffix: '', isMultilineFormat: true };
-    case 'code':
-      return { prefix: '`', suffix: '`', isMultilineFormat: false };
-    case 'link':
-      return { prefix: '[', suffix: '](url)', isMultilineFormat: false };
-    case 'ul':
-      return { prefix: '- ', suffix: '', isMultilineFormat: true };
-    case 'ol':
-      return { prefix: '1. ', suffix: '', isMultilineFormat: true };
-    case 'task':
-      return { prefix: '- [ ] ', suffix: '', isMultilineFormat: true };
-    case 'mention':
-      return { prefix: '@', suffix: '', isMultilineFormat: false };
-    case 'reference':
-      return { prefix: '#', suffix: '', isMultilineFormat: false };
+    case FORMAT_TYPES.HEADING:
+      return { prefix: "### ", suffix: "", isMultilineFormat: false };
+    case FORMAT_TYPES.BOLD:
+      return { prefix: "**", suffix: "**", isMultilineFormat: false };
+    case FORMAT_TYPES.ITALIC:
+      return { prefix: "_", suffix: "_", isMultilineFormat: false };
+    case FORMAT_TYPES.QUOTE:
+      return { prefix: "> ", suffix: "", isMultilineFormat: true };
+    case FORMAT_TYPES.CODE:
+      return { prefix: "`", suffix: "`", isMultilineFormat: false };
+    case FORMAT_TYPES.LINK:
+      return { prefix: "[", suffix: "](url)", isMultilineFormat: false };
+    case FORMAT_TYPES.UL:
+      return { prefix: "- ", suffix: "", isMultilineFormat: true };
+    case FORMAT_TYPES.OL:
+      return { prefix: "1. ", suffix: "", isMultilineFormat: true };
+    case FORMAT_TYPES.TASK:
+      return { prefix: "- [ ] ", suffix: "", isMultilineFormat: true };
+    case FORMAT_TYPES.MENTION:
+      return { prefix: "@", suffix: "", isMultilineFormat: false };
+    case FORMAT_TYPES.REFERENCE:
+      return { prefix: "#", suffix: "", isMultilineFormat: false };
     default:
-      return { prefix: '', suffix: '', isMultilineFormat: false };
+      return { prefix: "", suffix: "", isMultilineFormat: false };
   }
 }
