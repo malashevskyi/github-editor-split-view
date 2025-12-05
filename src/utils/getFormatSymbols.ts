@@ -6,6 +6,20 @@ interface FormatSymbols {
   isMultilineFormat: boolean;
 }
 
+/**
+ * Returns markdown symbols (prefix/suffix) for each format type.
+ *
+ * WHY: Different markdown formats require different wrapping symbols:
+ * - Bold wraps text: **text**
+ * - Heading prefixes line: ### text
+ * - Lists need prefix on each line: - item
+ *
+ * The isMultilineFormat flag tells us whether to apply formatting to
+ * each line individually (lists, quotes) or to the whole selection (bold, italic).
+ *
+ * This prevents code duplication across formatText and formatContentEditable,
+ * ensuring both textarea and CodeMirror editors use the same markdown syntax.
+ */
 export function getFormatSymbols(formatType: string): FormatSymbols {
   switch (formatType) {
     case FORMAT_TYPES.HEADING:

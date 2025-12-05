@@ -10,13 +10,39 @@ import { SELECTORS } from "../constants/selectors";
 const DEBOUNCE_DELAY = 1000;
 
 /**
- * Auto-refreshes GitHub README preview when content changes in split mode
+ * Auto-refreshes README preview in split mode as user types.
+ *
+ * WHY: In split mode, both Write and Preview are visible simultaneously.
+ * But GitHub's preview only updates when you manually click the Preview tab.
+ *
+ * PROBLEM: If we don't refresh automatically, users type in Write area
+ * but preview shows stale content → confusing and defeats the purpose
+ * of split view.
+ *
+ * SOLUTION:
+ * 1. Watch CodeMirror DOM for changes (MutationObserver)
+ * 2. Debounce updates (wait 1s after last keystroke)
+ * 3. Extract markdown from CodeMirror
+ * 4. Send to GitHub's preview API
+ * 5. Inject returned HTML into preview area
+ *
+ * WHY DEBOUNCE: Sending API request on every keystroke would:
+ * - Spam GitHub's servers (rate limit risk)
+ * - Cause UI jank (slow network)
+ * - Waste bandwidth
+ *
+ * 1 second delay means preview updates shortly after user stops typing,
+ * giving real-time feel without performance issues.
+ *
+ * This hook only runs for README editor (CodeMirror). Issues/comments
+ * use GitHub's built-in preview refresh.
  */
 export function useGitHubPreviewRefresh(
   editorWrapper: HTMLElement | null,
   isSplit: boolean,
 ) {
   useEffect(() => {
+    // Only run in split mode with valid wrapper
     if (!editorWrapper || !isSplit) return;
 
     const codeMirrorEditor = editorWrapper.querySelector(SELECTORS.CODEMIRROR);
@@ -24,9 +50,10 @@ export function useGitHubPreviewRefresh(
       SELECTORS.PREVIEW_AREA_README,
     );
 
+    // Only works for README (CodeMirror editor)
     if (!codeMirrorEditor || !previewArea) return;
 
-    // Extract GitHub data once
+    // Extract GitHub API configuration once on mount
     const { previewUrl, commitOid, fileName, authenticityToken } =
       extractGitHubData();
 
@@ -36,7 +63,7 @@ export function useGitHubPreviewRefresh(
     }
 
     let updateTimeout: ReturnType<typeof setTimeout>;
-    let isRefreshing = false;
+    let isRefreshing = false; // Prevent concurrent API calls
 
     const refreshPreview = async () => {
       if (isRefreshing) return;
