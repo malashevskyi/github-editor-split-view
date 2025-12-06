@@ -46,6 +46,30 @@ import { SELECTORS } from "../constants/selectors";
  * the exact original style attribute for clean reversibility.
  */
 
+/**
+ * Calculate textarea height for Issues/Comments editor.
+ *
+ * WHY: GitHub uses dynamic max-height (like 35lh) for textarea. We need to
+ * programmatically determine the actual height and apply it to both textarea
+ * and preview to keep them synchronized. Without this, preview renders at full
+ * height causing empty space below textarea.
+ */
+function calculateTextareaHeight(textarea: HTMLTextAreaElement): number {
+  const computedStyle = window.getComputedStyle(textarea);
+  const maxHeight = computedStyle.maxHeight;
+
+  // Parse max-height value
+  if (maxHeight && maxHeight !== "none") {
+    const maxHeightPx = parseFloat(maxHeight);
+    if (!isNaN(maxHeightPx)) {
+      return maxHeightPx;
+    }
+  }
+
+  // Fallback: use scrollHeight or default
+  return textarea.scrollHeight || 400;
+}
+
 export function useSplitMode(
   editorWrapper: HTMLElement | null,
   isSplit: boolean,
@@ -60,24 +84,26 @@ export function useSplitMode(
       const styles = originalStyles.current;
       styles.set(editorWrapper, editorWrapper.getAttribute("style") || "");
 
-      const children = Array.from(editorWrapper.children) as HTMLElement[];
-
-      // Hide all children by default (we'll selectively show what we need)
-      children.forEach((child) => {
-        styles.set(child, child.getAttribute("style") || "");
-        child.style.setProperty("display", "none", "important");
-      });
-
       const header = findHeader(editorWrapper);
       const writeArea = findWriteArea(editorWrapper);
       const previewArea = findPreviewArea(editorWrapper);
       const readmeScrollContainer = findReadmeScrollContainer(editorWrapper);
+
+      // Hide all children EXCEPT writeArea (we'll selectively show what we need)
+      const children = Array.from(editorWrapper.children) as HTMLElement[];
+      children.forEach((child) => {
+        if (child !== writeArea && child !== header) {
+          styles.set(child, child.getAttribute("style") || "");
+          child.style.setProperty("display", "none", "important");
+        }
+      });
 
       // Detect if this is README editor (has inner scroll container)
       const isReadmeEditor = !!readmeScrollContainer;
 
       // Show header (don't apply grid styles for README)
       if (header) {
+        styles.set(header, header.getAttribute("style") || "");
         header.style.setProperty("display", "flex", "important");
         // Only apply grid-column for Issues/Comments (not for README)
         if (!isReadmeEditor) {
@@ -151,30 +177,79 @@ export function useSplitMode(
           }
         }
       } else {
-        // Issues/Comments: Apply grid to wrapper
-        editorWrapper.style.display = "grid";
-        editorWrapper.style.gridTemplateColumns = "1fr 1fr";
-        editorWrapper.style.gridTemplateRows = "auto 1fr"; // Header auto-sized, content fills remaining space
-        editorWrapper.style.maxHeight = "100%"; // Prevent overflow outside container
+        // Issues/Comments: Apply grid to writeArea container
+        // Remove grid from wrapper (was causing 50% width issue)
+        editorWrapper.style.removeProperty("display");
+        editorWrapper.style.removeProperty("grid-template-columns");
+        editorWrapper.style.removeProperty("grid-template-rows");
 
         if (writeArea) {
-          writeArea.style.setProperty("display", "block", "important");
-          writeArea.style.setProperty("overflow-y", "auto", "important");
+          styles.set(writeArea, writeArea.getAttribute("style") || "");
+
+          // Apply grid to writeArea to split editor and preview
+          writeArea.style.setProperty("display", "grid", "important");
+          writeArea.style.setProperty(
+            "grid-template-columns",
+            "50% 50%",
+            "important",
+          );
           writeArea.style.setProperty("height", "100%", "important");
 
           const span = writeArea.querySelector<HTMLElement>(
             SELECTORS.TEXTAREA_SPAN,
           );
+          const textarea = writeArea.querySelector<HTMLTextAreaElement>(
+            SELECTORS.TEXTAREA,
+          );
+
           if (span) {
             styles.set(span, span.getAttribute("style") || "");
             span.style.setProperty("display", "block", "important");
           }
-        }
 
-        if (previewArea) {
-          previewArea.style.setProperty("display", "block", "important");
-          previewArea.style.setProperty("overflow-y", "auto", "important");
-          previewArea.style.setProperty("height", "100%", "important");
+          // Calculate and set textarea height
+          if (textarea) {
+            styles.set(textarea, textarea.getAttribute("style") || "");
+            const textareaHeight = calculateTextareaHeight(textarea);
+            textarea.style.setProperty(
+              "height",
+              `${textareaHeight}px`,
+              "important",
+            );
+            textarea.style.setProperty(
+              "max-height",
+              `${textareaHeight}px`,
+              "important",
+            );
+            textarea.style.removeProperty("box-sizing"); // Remove box-sizing: content-box that breaks scroll
+          }
+
+          // Move preview into writeArea (as 2nd column)
+          if (previewArea && span) {
+            styles.set(previewArea, previewArea.getAttribute("style") || "");
+
+            if (previewArea.parentElement !== writeArea) {
+              // Insert preview right after the span
+              if (span.nextSibling) {
+                writeArea.insertBefore(previewArea, span.nextSibling);
+              } else {
+                writeArea.appendChild(previewArea);
+              }
+            }
+
+            previewArea.style.setProperty("display", "block", "important");
+            previewArea.style.setProperty("overflow-y", "auto", "important");
+
+            // Set preview height to match textarea
+            if (textarea) {
+              const textareaHeight = calculateTextareaHeight(textarea);
+              previewArea.style.setProperty(
+                "height",
+                `${textareaHeight}px`,
+                "important",
+              );
+            }
+          }
         }
       }
 
@@ -223,6 +298,37 @@ export function useSplitMode(
             `${editorHeight}px`,
             "important",
           );
+        }
+
+        // Update textarea and preview heights for Issues/Comments
+        const writeArea = findWriteArea(editorWrapper);
+        if (writeArea) {
+          const textarea = writeArea.querySelector<HTMLTextAreaElement>(
+            SELECTORS.TEXTAREA,
+          );
+          const previewArea = findPreviewArea(editorWrapper);
+
+          if (textarea) {
+            const textareaHeight = calculateTextareaHeight(textarea);
+            textarea.style.setProperty(
+              "height",
+              `${textareaHeight}px`,
+              "important",
+            );
+            textarea.style.setProperty(
+              "max-height",
+              `${textareaHeight}px`,
+              "important",
+            );
+
+            if (previewArea) {
+              previewArea.style.setProperty(
+                "height",
+                `${textareaHeight}px`,
+                "important",
+              );
+            }
+          }
         }
       };
 

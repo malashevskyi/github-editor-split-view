@@ -26,6 +26,19 @@ export const EDITOR_WRAPPER_SELECTORS = [
   '[class*="Panel-module__Box"][class*="BlobEditor-module__Panel"]:not([data-split-view-initialized="true"])',
 ].join(", ");
 
+/**
+ * UI text constants for GitHub interface.
+ *
+ * WHY: GitHub uses different tab labels across different pages.
+ * By centralizing these text values, we can easily update them
+ * if GitHub changes their UI text (e.g., translates to other languages).
+ */
+export const UI_TEXT = {
+  WRITE_TAB: "write",
+  EDIT_TAB: "edit",
+  PREVIEW_TAB: "preview",
+} as const;
+
 export const SELECTORS = {
   // Text editors - WHY: Different GitHub pages use different editor types
   TEXTAREA: "textarea", // Used in older comment editors
