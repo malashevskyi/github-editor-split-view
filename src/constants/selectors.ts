@@ -43,6 +43,7 @@ export const SELECTORS = {
   // Write areas - WHY: We need to apply grid layout to the write area in split mode
   WRITE_AREA_ISSUES: '[class^="InlineAutocomplete-module__container"]',
   WRITE_AREA_README: ".react-code-view-edit",
+  WRITE_AREA_README_INNER: ".react-code-view-edit file-attachment", // Inner scrollable container for README
   TEXTAREA_SPAN: 'span[class^="MarkdownInput-module__textArea"]',
 
   // Preview areas - WHY: We need to show preview side-by-side with write area

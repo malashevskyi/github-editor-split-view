@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { SplitButton } from "./components/SplitButton";
 import { Toolbar } from "./components/Toolbar";
 import { useSplitMode } from "./hooks/useSplitMode";
@@ -15,6 +15,58 @@ const App: React.FC<AppProps> = ({ editorWrapper }) => {
 
   useSplitMode(editorWrapper, isSplitMode);
   useGitHubPreviewRefresh(editorWrapper, isSplitMode);
+
+  /**
+   * Auto-disable split mode when Edit tab is clicked.
+   *
+   * WHY: When user clicks Edit tab while in split mode, GitHub tries to hide
+   * preview and show only editor. But our split mode keeps preview visible,
+   * causing conflicts:
+   * - Preview element gets removed from CodeMirror but split styles remain
+   * - Text overlaps and layout breaks
+   * - Sometimes GitHub shows "Error, Something Wrong"
+   *
+   * SOLUTION: Detect Edit tab clicks and automatically turn off split mode.
+   * This cleanly restores original styles before GitHub manipulates the DOM.
+   */
+  useEffect(() => {
+    const handleTabClick = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+
+      // README uses SegmentedControl with data-text="Edit"
+      const segmentedControlText = target.closest('[data-text="Edit"]');
+      if (segmentedControlText) {
+        const button = segmentedControlText.closest("button");
+        if (button && isSplitMode) {
+          console.log("[App] Edit button clicked, disabling split mode");
+          setSplitMode(false);
+          return;
+        }
+      }
+
+      // Issues/Comments use role="tab"
+      const tabButton = target.closest('button[role="tab"]');
+      if (!tabButton) return;
+
+      // Find all tabs in the container
+      const tabList = tabButton.closest('[role="tablist"]');
+      if (!tabList) return;
+
+      const tabs = Array.from(tabList.querySelectorAll('button[role="tab"]'));
+      const clickedIndex = tabs.indexOf(tabButton);
+
+      // If clicked on Edit tab (index 0) and split mode is active, disable it
+      if (clickedIndex === 0 && isSplitMode) {
+        console.log("[App] Edit tab clicked, disabling split mode");
+        setSplitMode(false);
+      }
+    };
+
+    editorWrapper.addEventListener("click", handleTabClick, true); // Use capture phase
+    return () => {
+      editorWrapper.removeEventListener("click", handleTabClick, true);
+    };
+  }, [editorWrapper, isSplitMode]);
 
   // Keep component mounted but hidden to preserve observer
   return (

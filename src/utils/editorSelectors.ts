@@ -108,3 +108,33 @@ export function findPreviewArea(wrapper: HTMLElement): HTMLElement | null {
 
   return previewArea;
 }
+
+/**
+ * Finds the inner scrollable container for README editor.
+ *
+ * WHY: README editor has nested structure:
+ * - Outer: .react-code-view-edit (full height, no scroll)
+ * - Inner: file-attachment > first div (actual editor height with scroll)
+ *
+ * We need to apply flex layout to the FIRST DIV inside file-attachment
+ * so write/preview areas share the same scrollable space, preventing preview overflow.
+ *
+ * Returns null for Issues/Comments (they don't have this nested structure).
+ */
+export function findReadmeScrollContainer(
+  wrapper: HTMLElement,
+): HTMLElement | null {
+  const writeArea = wrapper.querySelector<HTMLElement>(
+    SELECTORS.WRITE_AREA_README,
+  );
+  if (!writeArea) return null;
+
+  const fileAttachment = writeArea.querySelector<HTMLElement>(
+    SELECTORS.WRITE_AREA_README_INNER,
+  );
+  if (!fileAttachment) return null;
+
+  // Get the first div inside file-attachment - that's the actual scroll container
+  const firstDiv = fileAttachment.querySelector<HTMLElement>("div");
+  return firstDiv;
+}
