@@ -89,10 +89,10 @@ export function useSplitMode(
       const previewArea = findPreviewArea(editorWrapper);
       const readmeScrollContainer = findReadmeScrollContainer(editorWrapper);
 
-      // Hide all children EXCEPT writeArea (we'll selectively show what we need)
+      // Hide all children EXCEPT writeArea and previewArea (we'll selectively show what we need)
       const children = Array.from(editorWrapper.children) as HTMLElement[];
       children.forEach((child) => {
-        if (child !== writeArea && child !== header) {
+        if (child !== writeArea && child !== header && child !== previewArea) {
           styles.set(child, child.getAttribute("style") || "");
           child.style.setProperty("display", "none", "important");
         }
@@ -136,6 +136,11 @@ export function useSplitMode(
 
         // README: Apply grid to CodeMirror editor to split it into 2 columns
         if (writeArea) {
+          // Save the original style of writeArea before modifying it.
+          // If we don't save it, "display: block !important" persists
+          // after unsplit, overriding the "d-none" class.
+          styles.set(writeArea, writeArea.getAttribute("style") || "");
+
           writeArea.style.setProperty("display", "block", "important");
 
           const codemirror = writeArea.querySelector<HTMLElement>(
@@ -193,7 +198,8 @@ export function useSplitMode(
             "50% 50%",
             "important",
           );
-          writeArea.style.setProperty("height", "100%", "important");
+
+          writeArea.style.setProperty("height", "auto", "important");
 
           const span = writeArea.querySelector<HTMLElement>(
             SELECTORS.TEXTAREA_SPAN,
@@ -207,21 +213,9 @@ export function useSplitMode(
             span.style.setProperty("display", "block", "important");
           }
 
-          // Calculate and set textarea height
           if (textarea) {
-            styles.set(textarea, textarea.getAttribute("style") || "");
-            const textareaHeight = calculateTextareaHeight(textarea);
-            textarea.style.setProperty(
-              "height",
-              `${textareaHeight}px`,
-              "important",
-            );
-            textarea.style.setProperty(
-              "max-height",
-              `${textareaHeight}px`,
-              "important",
-            );
-            textarea.style.removeProperty("box-sizing"); // Remove box-sizing: content-box that breaks scroll
+            textarea.style.setProperty("max-height", "90vh", "important");
+            textarea.style.removeProperty("box-sizing");
           }
 
           // Move preview into writeArea (as 2nd column)
@@ -237,7 +231,8 @@ export function useSplitMode(
               }
             }
 
-            previewArea.style.setProperty("display", "block", "important");
+            previewArea.style.setProperty("height", "100%", "important");
+            previewArea.style.setProperty("max-height", "90vh", "important");
             previewArea.style.setProperty("overflow-y", "auto", "important");
 
             // Set preview height to match textarea
@@ -299,37 +294,6 @@ export function useSplitMode(
             "important",
           );
         }
-
-        // Update textarea and preview heights for Issues/Comments
-        const writeArea = findWriteArea(editorWrapper);
-        if (writeArea) {
-          const textarea = writeArea.querySelector<HTMLTextAreaElement>(
-            SELECTORS.TEXTAREA,
-          );
-          const previewArea = findPreviewArea(editorWrapper);
-
-          if (textarea) {
-            const textareaHeight = calculateTextareaHeight(textarea);
-            textarea.style.setProperty(
-              "height",
-              `${textareaHeight}px`,
-              "important",
-            );
-            textarea.style.setProperty(
-              "max-height",
-              `${textareaHeight}px`,
-              "important",
-            );
-
-            if (previewArea) {
-              previewArea.style.setProperty(
-                "height",
-                `${textareaHeight}px`,
-                "important",
-              );
-            }
-          }
-        }
       };
 
       window.addEventListener("resize", handleResize);
@@ -344,6 +308,21 @@ export function useSplitMode(
         element.setAttribute("style", style);
       }
       originalStyles.current.clear();
+
+      // During split mode, we moved the previewArea INSIDE the writeArea.
+      // If we are on the "Preview" tab, the writeArea gets `display: none`,
+      // which hides the previewArea inside it.
+      // We must move the previewArea back to the main editorWrapper.
+      const writeArea = findWriteArea(editorWrapper);
+      const previewArea = findPreviewArea(editorWrapper);
+
+      if (writeArea && previewArea && writeArea.contains(previewArea)) {
+        if (writeArea.nextSibling) {
+          editorWrapper.insertBefore(previewArea, writeArea.nextSibling);
+        } else {
+          editorWrapper.appendChild(previewArea);
+        }
+      }
     }
   }, [isSplit, editorWrapper]);
 }
