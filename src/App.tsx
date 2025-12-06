@@ -18,6 +18,38 @@ const App: React.FC<AppProps> = ({ editorWrapper }) => {
   useGitHubPreviewRefresh(editorWrapper, isSplitMode);
 
   /**
+   * After unsplit, emulate Preview tab click to make GitHub show preview.
+   *
+   * WHY: We clone preview for split mode and hide the original with display:none.
+   * When unsplitting, cleanup restores styles, but GitHub doesn't know to show
+   * the original preview. Clicking Preview tab triggers GitHub's logic to
+   * properly display the preview content.
+   */
+  useEffect(() => {
+    if (!isSplitMode && isPreviewActive) {
+      // Just unsplit - wait for cleanup to complete, then click Preview
+      const timer = setTimeout(() => {
+        const tabs =
+          editorWrapper.querySelectorAll<HTMLButtonElement>(
+            'button[role="tab"]',
+          );
+
+        // Find Preview tab (not Write/Edit - usually second tab)
+        for (const tab of tabs) {
+          const tabText = tab.textContent?.trim().toLowerCase();
+          if (tabText !== UI_TEXT.WRITE_TAB && tabText !== UI_TEXT.EDIT_TAB) {
+            console.log("[App] Unsplit complete - clicking Preview tab");
+            tab.click();
+            break;
+          }
+        }
+      }, 100); // Wait for useEffect cleanup to complete
+
+      return () => clearTimeout(timer);
+    }
+  }, [isSplitMode, isPreviewActive, editorWrapper]);
+
+  /**
    * Auto-disable split mode when Write/Edit tab is clicked.
    *
    * WHY: When user clicks Write/Edit tab while in split mode, GitHub tries to hide
