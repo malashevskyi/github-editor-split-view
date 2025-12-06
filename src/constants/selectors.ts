@@ -50,6 +50,10 @@ export const SELECTORS = {
   PREVIEW_AREA_ISSUES: '[class^="MarkdownEditor-module__previewViewerWrapper"]',
   PREVIEW_AREA_README: '[class*="BlobEditor-module__Box_4"]',
 
+  // "Show Diff" button - WHY: This button doesn't work correctly in split mode, we need to hide it
+  SHOW_DIFF_BUTTON: "label.BlobEditHeader-module__FormControl_Label--mgya9",
+  SHOW_DIFF_CONTAINER: '[class*="BlobEditHeader-module__Box"]', // Container of Show Diff button
+
   // Tab elements - WHY: We need to detect which tab (Write/Preview) is active
   TAB_LIST: '[role="tablist"]',
   TAB_BUTTON: 'button[role="tab"]:nth-child(2)', // Preview tab (2nd button)

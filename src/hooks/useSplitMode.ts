@@ -186,6 +186,27 @@ export function useSplitMode(
       }
 
       /**
+       * Hide "Show Diff" button in split mode.
+       *
+       * WHY: The "Show Diff" button doesn't work correctly when split mode is active
+       * because it expects preview to be in a specific location. Rather than
+       * implementing complex diff logic for split view, we simply hide the button.
+       */
+      const showDiffLabel = editorWrapper.querySelector<HTMLElement>(
+        SELECTORS.SHOW_DIFF_BUTTON,
+      );
+      if (showDiffLabel) {
+        const container = showDiffLabel.closest<HTMLElement>(
+          SELECTORS.SHOW_DIFF_CONTAINER,
+        );
+        if (container) {
+          styles.set(container, container.getAttribute("style") || "");
+          container.style.setProperty("opacity", "0", "important");
+          container.style.setProperty("pointer-events", "none", "important");
+        }
+      }
+
+      /**
        * Setup resize listener to update editor height dynamically.
        *
        * WHY: When user resizes window or changes page zoom, the available
