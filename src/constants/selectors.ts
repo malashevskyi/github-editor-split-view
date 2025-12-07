@@ -78,6 +78,7 @@ export const SELECTORS = {
   PREVIEW_AREA_ISSUES: '[class^="MarkdownEditor-module__previewViewerWrapper"]',
   PREVIEW_AREA_README: '[class*="BlobEditor-module__Box_4"]',
   PREVIEW_AREA_OLD_PR: ".js-preview-panel, .preview-content", // Old PR preview area - comments use .js-preview-panel, description editing uses .preview-content
+  PREVIEW_BODY_OLD_PR: ".js-preview-body", // Inner element that GitHub sets min-height on
 
   // "Show Diff" button - WHY: This button doesn't work correctly in split mode, we need to hide it
   SHOW_DIFF_BUTTON: "label.BlobEditHeader-module__FormControl_Label--mgya9",

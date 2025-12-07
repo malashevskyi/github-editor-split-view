@@ -6,6 +6,7 @@ import {
   setStyle,
   calculateTextareaHeightOldUI,
   clickPreviewTab,
+  resetPreviewBodyMinHeight,
 } from "./splitModeHelpers";
 
 /**
@@ -101,6 +102,7 @@ export function applyOldPRSplitMode(
       setStyle(previewArea, "grid-row", "2");
       setStyle(previewArea, "overflow-y", "auto");
       setStyle(previewArea, "max-height", LAYOUT.MAX_HEIGHT);
+      setStyle(previewArea, "min-height", "0"); // Reset GitHub's min-height on outer element
 
       // Set initial preview height to match textarea
       const textarea = writeBucket.querySelector<HTMLTextAreaElement>(
@@ -113,6 +115,11 @@ export function applyOldPRSplitMode(
 
       // Simulate click on Preview tab to refresh content
       clickPreviewTab(wrapper);
+
+      // Reset min-height on preview body AFTER preview refreshes (when element appears)
+      setTimeout(() => {
+        resetPreviewBodyMinHeight(previewArea, styles);
+      }, TIMINGS.PREVIEW_BODY_MIN_HEIGHT_RESET_DELAY);
 
       // Setup auto-refresh: watch textarea changes
       if (textarea) {
@@ -127,6 +134,11 @@ export function applyOldPRSplitMode(
           clearTimeout(refreshTimeout);
           refreshTimeout = setTimeout(() => {
             clickPreviewTab(wrapper);
+
+            // Reset min-height on preview body after refresh
+            setTimeout(() => {
+              resetPreviewBodyMinHeight(previewArea, styles);
+            }, TIMINGS.PREVIEW_BODY_MIN_HEIGHT_RESET_DELAY);
           }, TIMINGS.PREVIEW_REFRESH_DEBOUNCE);
         };
 
@@ -158,6 +170,7 @@ export function applyOldPRSplitMode(
   setStyle(previewArea, "grid-row", "2");
   setStyle(previewArea, "overflow-y", "auto");
   setStyle(previewArea, "max-height", LAYOUT.MAX_HEIGHT);
+  setStyle(previewArea, "min-height", "0"); // Reset GitHub's min-height on outer element
 
   // Set initial preview height to match textarea
   const textarea = writeArea.querySelector<HTMLTextAreaElement>(
@@ -170,6 +183,11 @@ export function applyOldPRSplitMode(
 
   // Simulate click on Preview tab to refresh content
   clickPreviewTab(wrapper);
+
+  // Reset min-height on preview body AFTER preview refreshes (when element appears)
+  setTimeout(() => {
+    resetPreviewBodyMinHeight(previewArea, styles);
+  }, TIMINGS.PREVIEW_BODY_MIN_HEIGHT_RESET_DELAY);
 
   // Setup auto-refresh: watch textarea changes
   if (textarea) {
@@ -184,6 +202,11 @@ export function applyOldPRSplitMode(
       clearTimeout(refreshTimeout);
       refreshTimeout = setTimeout(() => {
         clickPreviewTab(wrapper);
+
+        // Reset min-height on preview body after refresh
+        setTimeout(() => {
+          resetPreviewBodyMinHeight(previewArea, styles);
+        }, TIMINGS.PREVIEW_BODY_MIN_HEIGHT_RESET_DELAY);
       }, TIMINGS.PREVIEW_REFRESH_DEBOUNCE);
     };
 

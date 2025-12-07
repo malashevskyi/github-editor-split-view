@@ -27,4 +27,9 @@ export const TIMINGS = {
    * for React to mount the editor before initializing our extension.
    */
   DOM_REINIT_DELAY: 300,
+
+  /**
+   * Delay for resetting min-height on preview body after refresh.
+   */
+  PREVIEW_BODY_MIN_HEIGHT_RESET_DELAY: 100,
 } as const;

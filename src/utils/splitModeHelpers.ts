@@ -147,3 +147,19 @@ export function hideOtherChildren(
     }
   });
 }
+
+/**
+ * Reset min-height on preview body element.
+ * Called after preview refreshes to override GitHub's dynamic min-height.
+ */
+export function resetPreviewBodyMinHeight(
+  previewArea: HTMLElement,
+  styles: Map<HTMLElement, string>,
+): void {
+  const previewBody =
+    previewArea.querySelector<HTMLElement>(".js-preview-body");
+  if (previewBody) {
+    saveOriginalStyle(previewBody, styles);
+    setStyle(previewBody, "min-height", "0");
+  }
+}
