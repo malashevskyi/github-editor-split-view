@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { SplitButton } from "./components/SplitButton";
 import { Toolbar } from "./components/Toolbar";
-import { SELECTORS, UI_TEXT } from "./constants/selectors";
 import { useGitHubPreviewRefresh } from "./hooks/useGitHubPreviewRefresh";
 import { useSplitMode } from "./hooks/useSplitMode";
 import { useWrapperTabs } from "./hooks/useWrapperTabs";
@@ -18,48 +17,24 @@ const App: React.FC<AppProps> = ({ editorWrapper }) => {
   useGitHubPreviewRefresh(editorWrapper, isSplitMode);
 
   /**
-   * Auto-disable split mode when Write/Edit tab is clicked.
+   * Auto-disable split mode when Write/Edit/Preview tab is clicked.
    *
    * WHY: When user clicks Write/Edit tab while in split mode, GitHub tries to hide
    * preview and show only editor. But our split mode keeps preview visible,
    * causing conflicts:
    * - Preview element gets removed from its position but split styles remain
    * - Text overlaps and layout breaks
-   * - Sometimes GitHub shows "Error, Something Wrong" or blank screen
    *
-   * SOLUTION: Detect Write/Edit tab clicks and automatically turn off split mode.
-   * This cleanly restores original styles before GitHub manipulates the DOM.
-   *
-   * HANDLES:
-   * - README: "Edit" button with data-text="Edit"
-   * - Issues/Comments: "Write" tab with role="tab"
+   * SOLUTION: Detect Write/Edit/Preview tab clicks and automatically turn off split mode.
    */
   useEffect(() => {
     const handleTabClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
 
-      // README uses SegmentedControl with data-text="Edit"
-      const segmentedControlText = target.closest('[data-text="Edit"]');
-      if (segmentedControlText) {
-        const button = segmentedControlText.closest("button");
-        if (button && isSplitMode) {
-          console.log("[App] Edit button clicked, disabling split mode");
-          setSplitMode(false);
-          return;
-        }
-      }
-
-      // Issues/Comments use role="tab"
-      const tabButton = target.closest(SELECTORS.TAB_BUTTON);
-      if (!tabButton) return;
-
-      // Check if this is Write/Edit tab (first tab)
-      const tabText = tabButton.textContent?.trim().toLowerCase();
-      const isWriteOrEditTab =
-        tabText === UI_TEXT.WRITE_TAB || tabText === UI_TEXT.EDIT_TAB;
-
-      if (isWriteOrEditTab && isSplitMode) {
-        console.log(`[App] ${tabText} tab clicked, disabling split mode`);
+      if (
+        ["Edit", "Write", "Preview"].includes(target.textContent?.trim()) &&
+        target.closest("button")
+      ) {
         setSplitMode(false);
       }
     };
