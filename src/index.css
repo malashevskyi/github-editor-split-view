@@ -45,7 +45,205 @@ html body div[class^="MarkdownEditor-module"] span[class^="prc-Spinner-Box"] {
   display: none !important;
 }
 
-/* Hide CodeMirror help panel in split mode (it overlaps content in README editor) */
+/* ============================================================================
+   SPLIT VIEW MODE STYLES
+   ============================================================================
+   
+   WHY: When split mode is active, the extension adds data-split-view-initialized="true"
+   and data-split-view-type="readme|old-pr|new-ui" to the editor wrapper.
+   
+   This allows CSS-based styling instead of inline JavaScript styles, which:
+   - Reduces code complexity and bugs
+   - Makes styles easier to maintain and debug
+   - Improves performance (browser handles CSS more efficiently)
+   - Provides better separation of concerns
+   
+   ARCHITECTURE:
+   - data-split-view-initialized="true" = Split mode is active
+   - data-split-view-type="readme" = README editor (CodeMirror)
+   - data-split-view-type="old-pr" = Old PR UI (comments + description)
+   - data-split-view-type="new-ui" = New UI (Issues/Comments with CSS modules)
+   ============================================================================ */
+
+/* ----------------------------------------------------------------------------
+   README EDITOR (CodeMirror) - data-split-view-type="readme"
+   ----------------------------------------------------------------------------
+   
+   STRUCTURE:
+   [data-split-view-type="readme"]                    ← Wrapper
+   └── .react-code-view-edit                          ← Write area
+       └── .cm-editor                                 ← CodeMirror (apply grid here)
+           ├── div[aria-labelledby="codemirror-label"] ← Editor (1st column)
+           └── [preview area]                         ← Preview (2nd column, moved here)
+   
+   WHY GRID ON .cm-editor:
+   - CodeMirror manages its own internal structure
+   - Applying grid to .cm-editor splits editor and preview into 2 columns
+   - Preview is moved inside .cm-editor as a sibling to editor div
+   ---------------------------------------------------------------------------- */
+
+/* CodeMirror: Enable grid layout for split view */
+[data-split-view-type="readme"] .cm-editor {
+  display: grid !important;
+  grid-template-columns: 50% 50% !important;
+  height: 100% !important;
+}
+
+[data-split-view-type="readme"] .react-code-view-edit {
+  display: block !important;
+}
+
+/* Preview area inside CodeMirror: 2nd column, full height, scrollable */
+[data-split-view-type="readme"] .cm-editor > [class*="BlobEditor-module__Box"] {
+  display: block !important;
+  overflow-y: auto !important;
+  height: 100% !important;
+}
+
+/* Hide CodeMirror help panel (keyboard shortcuts) - it overlaps content */
 [data-split-view-initialized="true"] .cm-help-panel {
   display: none !important;
+}
+
+/* ----------------------------------------------------------------------------
+   OLD PR UI - data-split-view-type="old-pr"
+   ----------------------------------------------------------------------------
+   
+   SUPPORTS TWO STRUCTURES:
+   
+   1. PR DESCRIPTION EDITING:
+      .Box.CommentBox.m-2                        ← Grid container
+      ├── .tabnav.CommentBox-header              ← Header (spans 2 columns)
+      ├── .clearfix                              ← Clearfix (hide in split mode)
+      ├── .CommentBox-toolbar                    ← Toolbar (hide in split mode)
+      ├── .js-upload-markdown-image              ← Write area (display: contents)
+      │   └── .js-write-bucket                   ← Actual write bucket (1st column)
+      └── .preview-content                       ← Preview (2nd column)
+   
+   2. PR COMMENTS:
+      tab-container.Box.CommentBox               ← Grid container
+      ├── .tabnav.CommentBox-header              ← Header (spans 2 columns)
+      ├── .CommentBox-toolbar                    ← Toolbar (visible)
+      ├── .js-upload-markdown-image              ← Write area (1st column)
+      └── .js-preview-panel                      ← Preview (2nd column)
+   
+   WHY DIFFERENT STRUCTURES:
+   - PR description has nested .Box.CommentBox.m-2 with markdown toolbar
+   - PR comments use tab-container as direct wrapper
+   - Detection: presence of .preview-content vs .js-preview-panel
+   ---------------------------------------------------------------------------- */
+
+/* Grid container for OLD PR UI */
+[data-split-view-type="old-pr"].CommentBox,
+[data-split-view-type="old-pr"] .Box.CommentBox {
+  display: grid !important;
+  grid-template-columns: 50% 50% !important;
+  grid-template-rows: auto 1fr !important;
+}
+
+/* Header: Spans both columns, top row */
+[data-split-view-type="old-pr"] .tabnav.CommentBox-header {
+  display: flex !important;
+  grid-column: 1 / 3 !important;
+  grid-row: 1 !important;
+}
+
+/* PR DESCRIPTION EDITING ONLY: Hide toolbar, make write area transparent */
+[data-split-view-type="old-pr"] .Box.CommentBox.m-2 .CommentBox-toolbar {
+  display: none !important;
+}
+
+[data-split-view-type="old-pr"] .Box.CommentBox.m-2 .js-upload-markdown-image {
+  display: contents !important;
+}
+[data-split-view-type="old-pr"] .clearfix {
+  display: none !important;
+}
+
+/* PR DESCRIPTION EDITING: Write bucket positioning */
+[data-split-view-type="old-pr"] .Box.CommentBox.m-2 .js-write-bucket {
+  display: block !important;
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+}
+
+/* PR DESCRIPTION EDITING: Preview positioning */
+[data-split-view-type="old-pr"] .Box.CommentBox.m-2 .preview-content {
+  display: block !important;
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  overflow-y: auto !important;
+  max-height: 90vh !important;
+  min-height: 0 !important;
+}
+
+/* PR COMMENTS: Write area positioning */
+[data-split-view-type="old-pr"].Box.CommentBox .js-upload-markdown-image {
+  display: block !important;
+  grid-column: 1 !important;
+  grid-row: 2 !important;
+}
+
+/* PR COMMENTS: Preview positioning */
+[data-split-view-type="old-pr"].Box.CommentBox .js-preview-panel {
+  display: block !important;
+  grid-column: 2 !important;
+  grid-row: 2 !important;
+  overflow-y: auto !important;
+  max-height: 90vh !important;
+  min-height: 0 !important;
+}
+
+/* Reset GitHub's dynamic min-height on preview body (causes empty space) */
+[data-split-view-type="old-pr"] .js-preview-body {
+  min-height: 0 !important;
+}
+
+/* ----------------------------------------------------------------------------
+   NEW UI (Issues/Comments) - data-split-view-type="new-ui"
+   ----------------------------------------------------------------------------
+   
+   STRUCTURE:
+   [data-split-view-type="new-ui"]                           ← Wrapper
+   └── [class^="InlineAutocomplete-module__container"]       ← Write area (apply grid here)
+       ├── [class^="MarkdownInput-module__textArea"]         ← Editor (1st column)
+       └── [class^="MarkdownEditor-module__previewViewerWrapper"] ← Preview (2nd column, moved here)
+   
+   WHY GRID ON WRITE AREA:
+   - New UI uses CSS modules with generated class names
+   - Write area naturally contains editor span
+   - Preview is moved into write area as sibling
+   - Grid splits them into 2 equal columns
+   ---------------------------------------------------------------------------- */
+
+/* Write area: Enable grid layout */
+[data-split-view-type="new-ui"]
+  [class^="InlineAutocomplete-module__container"] {
+  display: grid !important;
+  grid-template-columns: 50% 50% !important;
+  height: auto !important;
+}
+
+/* Editor span: Block display, 1st column */
+[data-split-view-type="new-ui"] [class^="MarkdownInput-module__textArea"] {
+  display: grid !important;
+}
+
+/* Preview area: 2nd column, scrollable, max height */
+[data-split-view-type="new-ui"]
+  [class^="MarkdownEditor-module__previewViewerWrapper"] {
+  height: 100% !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+}
+
+/* Header: Spans both columns in grid */
+[data-split-view-type="new-ui"] [class^="MarkdownEditor-module__header"] {
+  display: flex !important;
+  grid-column: 1 / 3 !important;
+}
+
+/* Reset min-height on preview body to prevent empty space after unsplit */
+[data-split-view-type="new-ui"] .js-preview-body {
+  min-height: 0 !important;
 }

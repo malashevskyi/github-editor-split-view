@@ -60,6 +60,15 @@ export function useSplitMode(
         editorWrapper.classList.contains("js-previewable-comment-form") ||
         editorWrapper.classList.contains("CommentBox");
 
+      // Add data attribute for UI type to enable CSS-based styling
+      if (isReadmeEditor) {
+        editorWrapper.setAttribute("data-split-view-type", "readme");
+      } else if (isOldPRUI) {
+        editorWrapper.setAttribute("data-split-view-type", "old-pr");
+      } else {
+        editorWrapper.setAttribute("data-split-view-type", "new-ui");
+      }
+
       // Hide all children except header, writeArea, and previewArea
       // EXCEPT for OLD PR UI - it manages visibility internally
       if (!isOldPRUI) {
@@ -134,6 +143,9 @@ export function useSplitMode(
         }
       }
       originalStyles.current.clear();
+
+      // Remove data attribute for UI type
+      editorWrapper.removeAttribute("data-split-view-type");
 
       // Move previewArea back to wrapper if it was moved
       const writeArea = findWriteArea(editorWrapper);

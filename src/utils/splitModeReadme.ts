@@ -1,5 +1,4 @@
 import { SELECTORS } from "../constants/selectors";
-import { LAYOUT } from "../constants/layout";
 import {
   saveOriginalStyle,
   setStyle,
@@ -20,30 +19,26 @@ export function applyReadmeSplitMode(
   // Calculate and set fixed height for README editor
   const editorHeight = calculateEditorHeight(wrapper);
 
-  // Apply height and overflow to the scroll container
+  // Apply height to the scroll container (dynamic value, must be in JS)
   saveOriginalStyle(readmeScrollContainer, styles);
   setStyle(readmeScrollContainer, "height", `${editorHeight}px`);
   setStyle(readmeScrollContainer, "overflow", "auto");
 
-  // Show header without grid styles
+  // Note: Grid layout, display values, and positioning are handled by CSS
+  // via data-split-view-type="readme" attribute (see index.css)
+
+  // Save original styles for restoration when exiting split mode
   if (header) {
     saveOriginalStyle(header, styles);
-    setStyle(header, "display", "flex");
   }
-
-  // README: Apply grid to CodeMirror editor to split it into 2 columns
   saveOriginalStyle(writeArea, styles);
+
+  // Force show writeArea (GitHub adds .d-none class to react-code-view-edit)
   setStyle(writeArea, "display", "block");
 
   const codemirror = writeArea.querySelector<HTMLElement>(SELECTORS.CODEMIRROR);
   if (codemirror) {
     saveOriginalStyle(codemirror, styles);
-    // Apply grid to CodeMirror to create 2 equal columns (50% 50%)
-    setStyle(codemirror, "display", "grid");
-    setStyle(codemirror, "grid-template-columns", LAYOUT.SPLIT_COLUMNS);
-    setStyle(codemirror, "height", "100%");
-
-    // Move preview into CodeMirror editor right after the editor div
     saveOriginalStyle(previewArea, styles);
 
     // Find the editor div (has aria-labelledby="codemirror-label")
@@ -51,6 +46,7 @@ export function applyReadmeSplitMode(
       SELECTORS.CM_EDITOR_DIV,
     );
 
+    // Move preview into CodeMirror editor (CSS will position it in 2nd column)
     if (editorDiv && previewArea.parentElement !== codemirror) {
       // Insert preview right after the editor div (as 2nd child)
       if (editorDiv.nextSibling) {
@@ -59,10 +55,6 @@ export function applyReadmeSplitMode(
         codemirror.appendChild(previewArea);
       }
     }
-
-    setStyle(previewArea, "display", "block");
-    setStyle(previewArea, "overflow-y", "auto");
-    setStyle(previewArea, "height", "100%");
   }
 }
 

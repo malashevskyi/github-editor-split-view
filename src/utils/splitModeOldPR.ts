@@ -1,6 +1,5 @@
 import { SELECTORS } from "../constants/selectors";
 import { TIMINGS } from "../constants/timings";
-import { LAYOUT } from "../constants/layout";
 import {
   saveOriginalStyle,
   setStyle,
@@ -53,29 +52,22 @@ export function applyOldPRSplitMode(
     isPRDescriptionEditing = false;
   }
 
-  // Old PR UI: Apply grid to the grid container (not necessarily the wrapper)
+  // Grid layout, display values, and positioning are handled by CSS via data-split-view-type="old-pr"
   saveOriginalStyle(gridContainer, styles);
-  setStyle(gridContainer, "display", "grid");
-  setStyle(gridContainer, "grid-template-columns", LAYOUT.SPLIT_COLUMNS);
-  setStyle(gridContainer, "grid-template-rows", "auto 1fr");
 
   // Header spans both columns (100% width)
   if (header) {
     saveOriginalStyle(header, styles);
-    setStyle(header, "display", "flex");
-    header.style.gridColumn = "1 / 3";
-    header.style.gridRow = "1";
   }
 
   // Special handling for PR description editing
   if (isPRDescriptionEditing) {
-    // Hide the markdown toolbar (it's between header and writeArea)
+    // Toolbar visibility is handled by CSS
     const toolbar = gridContainer.querySelector<HTMLElement>(
       SELECTORS.TOOLBAR_OLD_PR,
     );
     if (toolbar) {
       saveOriginalStyle(toolbar, styles);
-      setStyle(toolbar, "display", "none");
     }
 
     // Find the actual write bucket inside writeArea
@@ -84,27 +76,20 @@ export function applyOldPRSplitMode(
     );
 
     if (writeBucket) {
-      // Make writeArea (file-attachment) visible and remove it from grid flow
+      // Force show writeArea (CSS can't override hidden attribute or inline display:none)
       saveOriginalStyle(writeArea, styles);
       writeArea.removeAttribute("hidden");
       setStyle(writeArea, "display", "contents"); // Children become direct grid items
 
-      // Position write bucket in 1st column
+      // Force show write bucket (CSS positioning won't work if element is hidden)
       saveOriginalStyle(writeBucket, styles);
       setStyle(writeBucket, "display", "block");
-      setStyle(writeBucket, "grid-column", "1");
-      setStyle(writeBucket, "grid-row", "2");
 
-      // Position preview in 2nd column
+      // Force show preview (CSS positioning won't work if element is hidden)
       saveOriginalStyle(previewArea, styles);
       setStyle(previewArea, "display", "block");
-      setStyle(previewArea, "grid-column", "2");
-      setStyle(previewArea, "grid-row", "2");
-      setStyle(previewArea, "overflow-y", "auto");
-      setStyle(previewArea, "max-height", LAYOUT.MAX_HEIGHT);
-      setStyle(previewArea, "min-height", "0"); // Reset GitHub's min-height on outer element
 
-      // Set initial preview height to match textarea
+      // Set initial preview height to match textarea (DYNAMIC - must stay in JS)
       const textarea = writeBucket.querySelector<HTMLTextAreaElement>(
         SELECTORS.TEXTAREA,
       );
@@ -126,7 +111,7 @@ export function applyOldPRSplitMode(
         let refreshTimeout: ReturnType<typeof setTimeout>;
 
         const handleTextareaChange = () => {
-          // Update preview height to match textarea dynamically
+          // Update preview height to match textarea dynamically (DYNAMIC - must stay in JS)
           const textareaHeight = calculateTextareaHeightOldUI(textarea);
           setStyle(previewArea, "height", `${textareaHeight}px`);
 
@@ -156,23 +141,16 @@ export function applyOldPRSplitMode(
   }
 
   // === DEFAULT LOGIC (PR COMMENTS) ===
-  // Remove hidden attribute from writeArea
+  // Force show writeArea (CSS can't override hidden attribute)
   saveOriginalStyle(writeArea, styles);
   writeArea.removeAttribute("hidden");
   setStyle(writeArea, "display", "block");
-  setStyle(writeArea, "grid-column", "1");
-  setStyle(writeArea, "grid-row", "2");
 
-  // Position preview in 2nd column
+  // Force show preview (CSS positioning won't work if element is hidden)
   saveOriginalStyle(previewArea, styles);
   setStyle(previewArea, "display", "block");
-  setStyle(previewArea, "grid-column", "2");
-  setStyle(previewArea, "grid-row", "2");
-  setStyle(previewArea, "overflow-y", "auto");
-  setStyle(previewArea, "max-height", LAYOUT.MAX_HEIGHT);
-  setStyle(previewArea, "min-height", "0"); // Reset GitHub's min-height on outer element
 
-  // Set initial preview height to match textarea
+  // Set initial preview height to match textarea (DYNAMIC - must stay in JS)
   const textarea = writeArea.querySelector<HTMLTextAreaElement>(
     SELECTORS.TEXTAREA,
   );
