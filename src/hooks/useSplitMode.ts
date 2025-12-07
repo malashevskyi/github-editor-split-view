@@ -54,18 +54,21 @@ export function useSplitMode(
         return;
       }
 
-      // Hide all children except header, writeArea, and previewArea
-      hideOtherChildren(
-        editorWrapper,
-        [header, writeArea, previewArea],
-        styles,
-      );
-
       // Detect UI type and apply appropriate styles
       const isReadmeEditor = !!readmeScrollContainer;
-      const isOldPRUI = editorWrapper.classList.contains(
-        "js-previewable-comment-form",
-      );
+      const isOldPRUI =
+        editorWrapper.classList.contains("js-previewable-comment-form") ||
+        editorWrapper.classList.contains("CommentBox");
+
+      // Hide all children except header, writeArea, and previewArea
+      // EXCEPT for OLD PR UI - it manages visibility internally
+      if (!isOldPRUI) {
+        hideOtherChildren(
+          editorWrapper,
+          [header, writeArea, previewArea],
+          styles,
+        );
+      }
 
       let cleanup: (() => void) | undefined;
 

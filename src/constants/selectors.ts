@@ -56,6 +56,11 @@ export const SELECTORS = {
   HEADER_README: '[class^="BlobEditHeader-module__Box"]', // README editor header
   HEADER_OLD_PR: ".CommentBox-header.tabnav", // Old PR comments header
 
+  // Toolbars - WHY: Formatting toolbar needs to be hidden in split mode for PR description editing
+  TOOLBAR_OLD_PR: ".CommentBox-toolbar", // Old PR markdown formatting toolbar
+  // Unique to PR description
+  PR_DESCRIPTION_PREVIEW_CONTENT: ".preview-content",
+
   // Tab containers - WHY: We need to find where to inject the Split button
   TAB_CONTAINER_ISSUES: '[class^="ViewSwitch-module__viewSwitch"]', // Issues/PRs tabs
   TAB_CONTAINER_README: '[class*="BlobEditHeader-module__Box_1"]', // README tabs
@@ -72,7 +77,7 @@ export const SELECTORS = {
   // Preview areas - WHY: We need to show preview side-by-side with write area
   PREVIEW_AREA_ISSUES: '[class^="MarkdownEditor-module__previewViewerWrapper"]',
   PREVIEW_AREA_README: '[class*="BlobEditor-module__Box_4"]',
-  PREVIEW_AREA_OLD_PR: ".js-preview-panel", // Old PR preview area
+  PREVIEW_AREA_OLD_PR: ".js-preview-panel, .preview-content", // Old PR preview area - comments use .js-preview-panel, description editing uses .preview-content
 
   // "Show Diff" button - WHY: This button doesn't work correctly in split mode, we need to hide it
   SHOW_DIFF_BUTTON: "label.BlobEditHeader-module__FormControl_Label--mgya9",
