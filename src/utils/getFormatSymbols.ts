@@ -40,10 +40,6 @@ export function getFormatSymbols(formatType: string): FormatSymbols {
       return { prefix: "1. ", suffix: "", isMultilineFormat: true };
     case FORMAT_TYPES.TASK:
       return { prefix: "- [ ] ", suffix: "", isMultilineFormat: true };
-    case FORMAT_TYPES.MENTION:
-      return { prefix: "@", suffix: "", isMultilineFormat: false };
-    case FORMAT_TYPES.REFERENCE:
-      return { prefix: "#", suffix: "", isMultilineFormat: false };
     default:
       return { prefix: "", suffix: "", isMultilineFormat: false };
   }

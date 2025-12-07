@@ -15,8 +15,6 @@ export const FORMAT_TYPES = {
   UL: "ul",
   OL: "ol",
   TASK: "task",
-  MENTION: "mention",
-  REFERENCE: "reference",
 } as const;
 
 export type FormatType = (typeof FORMAT_TYPES)[keyof typeof FORMAT_TYPES];

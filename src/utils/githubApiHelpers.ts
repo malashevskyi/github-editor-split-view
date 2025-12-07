@@ -123,11 +123,6 @@ export function extractCodeMirrorContent(
 /**
  * Sends markdown to GitHub's preview API and returns rendered HTML.
  *
- * WHY: GitHub renders markdown server-side (not in browser) because:
- * - They use custom markdown extensions (task lists, @mentions, etc.)
- * - Security: sanitization happens server-side
- * - Consistency: same rendering as final PR/issue display
- *
  * We must send FormData (not JSON) because that's what GitHub's API expects.
  * The request includes:
  * - code: the markdown text
