@@ -44,3 +44,8 @@
 html body div[class^="MarkdownEditor-module"] span[class^="prc-Spinner-Box"] {
   display: none !important;
 }
+
+/* Hide CodeMirror help panel in split mode (it overlaps content in README editor) */
+[data-split-view-initialized="true"] .cm-help-panel {
+  display: none !important;
+}
