@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface SplitButtonProps {
   isSplit: boolean;
@@ -10,8 +10,12 @@ export const SplitButton: React.FC<SplitButtonProps> = ({
   onClick,
 }) => {
   return (
-    <button className="split-view-button-custom" onClick={onClick}>
-      {isSplit ? 'Unsplit' : 'Split'}
+    <button
+      type="button"
+      className="split-view-button-custom"
+      onClick={onClick}
+    >
+      {isSplit ? "Unsplit" : "Split"}
     </button>
   );
 };

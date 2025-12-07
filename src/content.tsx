@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.css";
 import { EDITOR_WRAPPER_SELECTORS, SELECTORS } from "./constants/selectors";
+import { TIMINGS } from "./constants/timings";
 
 const DEBOUNCE_DELAY = 100;
 
@@ -28,6 +29,15 @@ const initializeSplitView = () => {
     );
 
     let isReadmeEditor = false;
+    let isOldPRUI = false;
+
+    // If not found, try old PR UI
+    if (!tabContainer) {
+      tabContainer = wrapper.querySelector<HTMLElement>(
+        SELECTORS.TAB_CONTAINER_OLD_PR,
+      );
+      isOldPRUI = !!tabContainer;
+    }
 
     // If not found, try to find tab container in README editor
     if (!tabContainer) {
@@ -61,6 +71,9 @@ const initializeSplitView = () => {
       } else {
         tabContainer.appendChild(reactRootContainer);
       }
+    } else if (isOldPRUI) {
+      // For old PR UI, append after the tabs
+      tabContainer.appendChild(reactRootContainer);
     } else {
       // For issues/PR, append as before
       tabContainer.appendChild(reactRootContainer);
@@ -125,5 +138,5 @@ document.addEventListener("soft-nav:success", () => {
 // Fallback: listen for popstate (browser back/forward)
 window.addEventListener("popstate", () => {
   console.log("[Split View] Popstate detected (browser navigation)");
-  setTimeout(reinitialize, 300); // Small delay to let DOM update
+  setTimeout(reinitialize, TIMINGS.DOM_REINIT_DELAY);
 });

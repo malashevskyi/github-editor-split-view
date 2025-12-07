@@ -60,6 +60,11 @@ export function findHeader(wrapper: HTMLElement): HTMLElement | null {
     header = wrapper.querySelector<HTMLElement>(SELECTORS.HEADER_README);
   }
 
+  // If not found, try old PR comments header
+  if (!header) {
+    header = wrapper.querySelector<HTMLElement>(SELECTORS.HEADER_OLD_PR);
+  }
+
   return header;
 }
 
@@ -80,6 +85,11 @@ export function findWriteArea(wrapper: HTMLElement): HTMLElement | null {
   // If not found, try for README editor
   if (!writeArea) {
     writeArea = wrapper.querySelector<HTMLElement>(SELECTORS.WRITE_AREA_README);
+  }
+
+  // If not found, try old PR comments
+  if (!writeArea) {
+    writeArea = wrapper.querySelector<HTMLElement>(SELECTORS.WRITE_AREA_OLD_PR);
   }
 
   return writeArea;
@@ -103,6 +113,13 @@ export function findPreviewArea(wrapper: HTMLElement): HTMLElement | null {
   if (!previewArea) {
     previewArea = wrapper.querySelector<HTMLElement>(
       SELECTORS.PREVIEW_AREA_README,
+    );
+  }
+
+  // If not found, try old PR comments
+  if (!previewArea) {
+    previewArea = wrapper.querySelector<HTMLElement>(
+      SELECTORS.PREVIEW_AREA_OLD_PR,
     );
   }
 

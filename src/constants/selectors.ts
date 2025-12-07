@@ -16,14 +16,20 @@
  * 1. Issues/PR comments (MarkdownEditor-module)
  * 2. Discussion comments (Shared-module__CommentBox)
  * 3. README file editor (BlobEditor-module)
+ * 4. Old PR comments (CommentBox - parent of header)
  *
  * The :not([data-split-view-initialized]) prevents re-processing
  * editors we've already enhanced, avoiding duplicate UI elements.
  */
 export const EDITOR_WRAPPER_SELECTORS = [
+  // Issues/PR comments
   '[class^="MarkdownEditor-module__previewWrapper"]:not([data-split-view-initialized="true"])',
+  // Discussion comments
   '[class^="Shared-module__CommentBox"]:not([data-split-view-initialized="true"])',
+  // README file editor
   '[class*="Panel-module__Box"][class*="BlobEditor-module__Panel"]:not([data-split-view-initialized="true"])',
+  // PR comments
+  '.CommentBox:not([data-split-view-initialized="true"]):has(.CommentBox-header.tabnav)',
 ].join(", ");
 
 /**
@@ -48,20 +54,24 @@ export const SELECTORS = {
   // Headers - WHY: We inject our Split button into the header, different pages have different headers
   HEADER_ISSUES: '[class^="MarkdownEditor-module__header"]', // Issues/PRs header
   HEADER_README: '[class^="BlobEditHeader-module__Box"]', // README editor header
+  HEADER_OLD_PR: ".CommentBox-header.tabnav", // Old PR comments header
 
   // Tab containers - WHY: We need to find where to inject the Split button
   TAB_CONTAINER_ISSUES: '[class^="ViewSwitch-module__viewSwitch"]', // Issues/PRs tabs
   TAB_CONTAINER_README: '[class*="BlobEditHeader-module__Box_1"]', // README tabs
+  TAB_CONTAINER_OLD_PR: ".tabnav-tabs", // Old PR comments tabs
 
   // Write areas - WHY: We need to apply grid layout to the write area in split mode
   WRITE_AREA_ISSUES: '[class^="InlineAutocomplete-module__container"]',
   WRITE_AREA_README: ".react-code-view-edit",
   WRITE_AREA_README_INNER: ".react-code-view-edit file-attachment", // Inner scrollable container for README
   TEXTAREA_SPAN: 'span[class^="MarkdownInput-module__textArea"]',
+  WRITE_AREA_OLD_PR: ".js-upload-markdown-image", // Old PR write area
 
   // Preview areas - WHY: We need to show preview side-by-side with write area
   PREVIEW_AREA_ISSUES: '[class^="MarkdownEditor-module__previewViewerWrapper"]',
   PREVIEW_AREA_README: '[class*="BlobEditor-module__Box_4"]',
+  PREVIEW_AREA_OLD_PR: ".js-preview-panel", // Old PR preview area
 
   // "Show Diff" button - WHY: This button doesn't work correctly in split mode, we need to hide it
   SHOW_DIFF_BUTTON: "label.BlobEditHeader-module__FormControl_Label--mgya9",
@@ -78,6 +88,7 @@ export const SELECTORS = {
   // CodeMirror elements - WHY: README editor uses CodeMirror, we need to extract/update content
   CM_CONTENT: ".cm-content", // Contains the editable content
   CM_LINE: ".cm-line", // Each line of code/text
+  CM_EDITOR_DIV: 'div[aria-labelledby="codemirror-label"]', // Main editor div in CodeMirror
 
   // Markdown elements - WHY: We inject rendered preview HTML into these elements
   MARKDOWN_BODY: ".markdown-body",
