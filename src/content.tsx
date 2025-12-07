@@ -97,9 +97,34 @@ const setupObserver = () => {
   // Disconnect previous observer if exists
   if (observer) observer.disconnect();
 
-  observer = new MutationObserver(() => {
-    clearTimeout(debounceTimeout);
-    debounceTimeout = setTimeout(initializeSplitView, DEBOUNCE_DELAY);
+  observer = new MutationObserver((mutations) => {
+    let shouldInitialize = false;
+
+    for (const mutation of mutations) {
+      if (mutation.type !== "childList") continue;
+
+      for (const node of mutation.addedNodes) {
+        if (!(node instanceof HTMLElement)) continue;
+
+        if (
+          node.matches(EDITOR_WRAPPER_SELECTORS) ||
+          node.querySelector(EDITOR_WRAPPER_SELECTORS) ||
+          // detect issues start editing area (menu (three dots) > edit)
+          (node.className &&
+            typeof node.className === "string" &&
+            node.className.includes("MarkdownEditor-module"))
+        ) {
+          shouldInitialize = true;
+          break;
+        }
+      }
+      if (shouldInitialize) break;
+    }
+
+    if (shouldInitialize) {
+      clearTimeout(debounceTimeout);
+      debounceTimeout = setTimeout(initializeSplitView, DEBOUNCE_DELAY);
+    }
   });
 
   // Observe for dynamic content
