@@ -32,7 +32,7 @@ export const useWrapperTabs = (wrapper: HTMLElement) => {
     const checkTab = () => {
       // Check for regular tabs (issues/PR/comments)
       let previewTab = header!.querySelector<HTMLButtonElement>(
-        SELECTORS.TAB_BUTTON,
+        SELECTORS.PREVIEW_TAB_BUTTON,
       );
 
       // Check if Preview tab has "selected" class or aria-selected="true"

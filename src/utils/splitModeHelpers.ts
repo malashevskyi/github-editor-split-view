@@ -46,7 +46,7 @@ export function clickPreviewTab(wrapper: HTMLElement): void {
 
   // Check for regular tabs (issues/PR/comments)
   let previewTab = header.querySelector<HTMLButtonElement>(
-    SELECTORS.TAB_BUTTON,
+    SELECTORS.PREVIEW_TAB_BUTTON,
   );
 
   // If not found, try old PR UI tabs

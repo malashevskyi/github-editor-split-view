@@ -67,6 +67,7 @@ export const SELECTORS = {
   WRITE_AREA_README_INNER: ".react-code-view-edit file-attachment", // Inner scrollable container for README
   TEXTAREA_SPAN: 'span[class^="MarkdownInput-module__textArea"]',
   WRITE_AREA_OLD_PR: ".js-upload-markdown-image", // Old PR write area
+  WRITE_BUCKET: ".js-write-bucket", // Old PR write area inner container without extra bottom elements
 
   // Preview areas - WHY: We need to show preview side-by-side with write area
   PREVIEW_AREA_ISSUES: '[class^="MarkdownEditor-module__previewViewerWrapper"]',
@@ -79,7 +80,8 @@ export const SELECTORS = {
 
   // Tab elements - WHY: We need to detect which tab (Write/Preview) is active
   TAB_LIST: '[role="tablist"]',
-  TAB_BUTTON: 'button[role="tab"]:nth-child(2)', // Preview tab (2nd button)
+  TAB_BUTTON: 'button[role="tab"]',
+  PREVIEW_TAB_BUTTON: 'button[role="tab"]:nth-child(2)', // Preview tab (2nd button)
   SEGMENTED_CONTROL: '[class^="prc-SegmentedControl"]', // README uses SegmentedControl
   SEGMENTED_CONTROL_ITEM: '[class^="prc-SegmentedControl-Item"]',
   TAB_BUTTON_INNER: "button",

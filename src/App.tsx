@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { SplitButton } from "./components/SplitButton";
 import { Toolbar } from "./components/Toolbar";
+import { SELECTORS, UI_TEXT } from "./constants/selectors";
+import { useGitHubPreviewRefresh } from "./hooks/useGitHubPreviewRefresh";
 import { useSplitMode } from "./hooks/useSplitMode";
 import { useWrapperTabs } from "./hooks/useWrapperTabs";
-import { useGitHubPreviewRefresh } from "./hooks/useGitHubPreviewRefresh";
-import { UI_TEXT } from "./constants/selectors";
 
 interface AppProps {
   editorWrapper: HTMLElement;
@@ -16,38 +16,6 @@ const App: React.FC<AppProps> = ({ editorWrapper }) => {
 
   useSplitMode(editorWrapper, isSplitMode);
   useGitHubPreviewRefresh(editorWrapper, isSplitMode);
-
-  /**
-   * After unsplit, emulate Preview tab click to make GitHub show preview.
-   *
-   * WHY: We clone preview for split mode and hide the original with display:none.
-   * When unsplitting, cleanup restores styles, but GitHub doesn't know to show
-   * the original preview. Clicking Preview tab triggers GitHub's logic to
-   * properly display the preview content.
-   */
-  useEffect(() => {
-    if (!isSplitMode && isPreviewActive) {
-      // Just unsplit - wait for cleanup to complete, then click Preview
-      const timer = setTimeout(() => {
-        const tabs =
-          editorWrapper.querySelectorAll<HTMLButtonElement>(
-            'button[role="tab"]',
-          );
-
-        // Find Preview tab (not Write/Edit - usually second tab)
-        for (const tab of tabs) {
-          const tabText = tab.textContent?.trim().toLowerCase();
-          if (tabText !== UI_TEXT.WRITE_TAB && tabText !== UI_TEXT.EDIT_TAB) {
-            console.log("[App] Unsplit complete - clicking Preview tab");
-            tab.click();
-            break;
-          }
-        }
-      }, 100); // Wait for useEffect cleanup to complete
-
-      return () => clearTimeout(timer);
-    }
-  }, [isSplitMode, isPreviewActive, editorWrapper]);
 
   /**
    * Auto-disable split mode when Write/Edit tab is clicked.
@@ -82,7 +50,7 @@ const App: React.FC<AppProps> = ({ editorWrapper }) => {
       }
 
       // Issues/Comments use role="tab"
-      const tabButton = target.closest('button[role="tab"]');
+      const tabButton = target.closest(SELECTORS.TAB_BUTTON);
       if (!tabButton) return;
 
       // Check if this is Write/Edit tab (first tab)
