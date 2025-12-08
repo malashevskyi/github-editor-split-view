@@ -16,10 +16,6 @@ interface TextareaSelection {
  * 2. What's before/after the selection (to reconstruct the full text)
  * 3. Cursor positions (to restore selection after formatting)
  *
- * The textarea API provides selectionStart/selectionEnd, but we need
- * to calculate the text parts ourselves. This helper does it once
- * instead of repeating the substring logic everywhere.
- *
  * Returns null if textarea is missing, preventing errors in edge cases
  * (e.g., editor being removed from DOM during formatting).
  */

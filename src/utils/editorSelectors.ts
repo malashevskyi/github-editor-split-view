@@ -7,24 +7,10 @@ import { SELECTORS } from "../constants/selectors";
  * - Issues/PRs use <textarea> with specific class names
  * - README uses CodeMirror with contenteditable
  * - Headers, tabs, and preview areas all have different selectors
- *
- * Instead of writing "try selector A, then try selector B" logic everywhere,
- * we centralize it here. This makes the codebase much cleaner and easier
- * to update when GitHub changes their HTML structure.
- *
- * Each function tries both selector variants and returns the first match,
- * making our extension work across all GitHub editor types transparently.
  */
 
 /**
  * Finds the main text editor element (textarea or contenteditable).
- *
- * WHY: We need to detect which editor type GitHub is using:
- * - textarea = issues/comments/discussions (older editor)
- * - contenteditable = README files (CodeMirror 6)
- *
- * The formatting logic differs between these two (textarea.value vs DOM manipulation),
- * so we need to identify which one we're working with before applying formatting.
  */
 export function findEditor(
   wrapper: HTMLElement,
@@ -48,8 +34,6 @@ export function findEditor(
  * Finds the header element containing Write/Preview tabs.
  *
  * WHY: We inject our "Split" button into the header, next to Write/Preview tabs.
- * Different GitHub pages have different header elements, so we need to find
- * the right one to avoid placing our button in the wrong location.
  */
 export function findHeader(wrapper: HTMLElement): HTMLElement | null {
   // Try header for issues/PR/comments
@@ -73,8 +57,7 @@ export function findHeader(wrapper: HTMLElement): HTMLElement | null {
  *
  * WHY: In split mode, we need to apply CSS grid layout to the container
  * that holds the editor. This resizes it to 50% width so preview can
- * appear side-by-side. Different pages have different container structures,
- * so we need to find the correct element to apply grid styles.
+ * appear side-by-side.
  */
 export function findWriteArea(wrapper: HTMLElement): HTMLElement | null {
   // Try for issues/PR/comments
@@ -100,8 +83,7 @@ export function findWriteArea(wrapper: HTMLElement): HTMLElement | null {
  *
  * WHY: In split mode, we need to show the preview area (normally hidden
  * behind the Write tab). We apply CSS to make it visible and position it
- * next to the editor. Different pages have different preview containers,
- * so we need to find the right one.
+ * next to the editor.
  */
 export function findPreviewArea(wrapper: HTMLElement): HTMLElement | null {
   // Try for issues/PR/comments
@@ -135,8 +117,6 @@ export function findPreviewArea(wrapper: HTMLElement): HTMLElement | null {
  *
  * We need to apply flex layout to the FIRST DIV inside file-attachment
  * so write/preview areas share the same scrollable space, preventing preview overflow.
- *
- * Returns null for Issues/Comments (they don't have this nested structure).
  */
 export function findReadmeScrollContainer(
   wrapper: HTMLElement,

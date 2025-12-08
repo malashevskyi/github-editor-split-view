@@ -8,21 +8,11 @@ import { formatContentEditable } from "./formatContentEditable";
  *
  * 1. **Issues/Comments/Discussions**: Plain HTML <textarea>
  *    - Access text via: textarea.value
- *    - Set cursor via: textarea.selectionStart/selectionEnd
- *    - Simple and straightforward
  *
  * 2. **README files**: CodeMirror 6 contenteditable div
  *    - Access text via: DOM manipulation (window.getSelection, Range API)
- *    - Set cursor via: Selection.setStart/setEnd
- *    - Complex but necessary for syntax highlighting
  *
  * This wrapper function detects which editor type we're dealing with
- * and delegates to the appropriate formatter. This keeps the rest of
- * our code simple - components just call formatMarkdown() without
- * worrying about implementation details.
- *
- * Without this abstraction, every component would need to duplicate
- * the editor type detection logic.
  *
  * @param formatType The markdown format to apply (bold, italic, etc.)
  * @param editorElement The editor element (detected automatically)

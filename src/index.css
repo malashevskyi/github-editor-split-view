@@ -105,6 +105,17 @@ html body div[class^="MarkdownEditor-module"] span[class^="prc-Spinner-Box"] {
   display: none !important;
 }
 
+/* Readme - Hide all children except header, writeArea and previewArea */
+[data-split-view-type="readme"]
+  > *:not([class^="BlobEditHeader-module__Box"]):not(.react-code-view-edit) {
+  display: none !important;
+}
+
+/* Hide "Show Diff" button in README split mode */
+[data-split-view-type="readme"] [class^="BlobEditHeader-module__Box_4"] {
+  display: none !important;
+}
+
 /* ----------------------------------------------------------------------------
    OLD PR UI - data-split-view-type="old-pr"
    ----------------------------------------------------------------------------
@@ -246,4 +257,12 @@ html body div[class^="MarkdownEditor-module"] span[class^="prc-Spinner-Box"] {
 /* Reset min-height on preview body to prevent empty space after unsplit */
 [data-split-view-type="new-ui"] .js-preview-body {
   min-height: 0 !important;
+}
+
+/* New UI (Issues/Comments) - Hide all children except header, writeArea, and previewArea */
+[data-split-view-type="new-ui"]
+  > *:not([class^="MarkdownEditor-module__header"]):not(
+    [class^="InlineAutocomplete-module__container"]
+  ):not([class^="MarkdownEditor-module__previewViewerWrapper"]) {
+  display: none !important;
 }

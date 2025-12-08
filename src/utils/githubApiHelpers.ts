@@ -12,9 +12,6 @@
  * 2. Get CSRF tokens (GitHub requires these for security)
  * 3. Send markdown content to GitHub's preview API
  * 4. Inject the returned HTML into the preview area
- *
- * These helpers encapsulate all the GitHub-specific API logic, keeping
- * the hook code clean and focused on the React lifecycle.
  */
 
 import { SELECTORS } from "../constants/selectors";

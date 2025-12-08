@@ -60,6 +60,15 @@ export function applyOldPRSplitMode(
     saveOriginalStyle(header, styles);
   }
 
+  // Force show writeArea (CSS can't override hidden attribute or inline display:none)
+  saveOriginalStyle(writeArea, styles);
+  writeArea.removeAttribute("hidden");
+  setStyle(writeArea, "display", "contents");
+
+  // Force show preview (CSS positioning won't work if element is hidden)
+  saveOriginalStyle(previewArea, styles);
+  setStyle(previewArea, "display", "block");
+
   // Special handling for PR description editing
   if (isPRDescriptionEditing) {
     // Toolbar visibility is handled by CSS
@@ -76,18 +85,9 @@ export function applyOldPRSplitMode(
     );
 
     if (writeBucket) {
-      // Force show writeArea (CSS can't override hidden attribute or inline display:none)
-      saveOriginalStyle(writeArea, styles);
-      writeArea.removeAttribute("hidden");
-      setStyle(writeArea, "display", "contents"); // Children become direct grid items
-
       // Force show write bucket (CSS positioning won't work if element is hidden)
       saveOriginalStyle(writeBucket, styles);
       setStyle(writeBucket, "display", "block");
-
-      // Force show preview (CSS positioning won't work if element is hidden)
-      saveOriginalStyle(previewArea, styles);
-      setStyle(previewArea, "display", "block");
 
       // Set initial preview height to match textarea (DYNAMIC - must stay in JS)
       const textarea = writeBucket.querySelector<HTMLTextAreaElement>(
@@ -102,18 +102,14 @@ export function applyOldPRSplitMode(
       clickPreviewTab(wrapper);
 
       // Reset min-height on preview body AFTER preview refreshes (when element appears)
-      setTimeout(() => {
-        resetPreviewBodyMinHeight(previewArea, styles);
-      }, TIMINGS.PREVIEW_BODY_MIN_HEIGHT_RESET_DELAY);
+      resetPreviewBodyMinHeightWithDelay();
 
       // Setup auto-refresh: watch textarea changes
       if (textarea) {
         let refreshTimeout: ReturnType<typeof setTimeout>;
 
         const handleTextareaChange = () => {
-          // Update preview height to match textarea dynamically (DYNAMIC - must stay in JS)
-          const textareaHeight = calculateTextareaHeightOldUI(textarea);
-          setStyle(previewArea, "height", `${textareaHeight}px`);
+          calculateTextareaHeightAndApplyToPreview(textarea);
 
           // Debounce: refresh preview 500ms after user stops typing
           clearTimeout(refreshTimeout);
@@ -121,9 +117,7 @@ export function applyOldPRSplitMode(
             clickPreviewTab(wrapper);
 
             // Reset min-height on preview body after refresh
-            setTimeout(() => {
-              resetPreviewBodyMinHeight(previewArea, styles);
-            }, TIMINGS.PREVIEW_BODY_MIN_HEIGHT_RESET_DELAY);
+            resetPreviewBodyMinHeightWithDelay();
           }, TIMINGS.PREVIEW_REFRESH_DEBOUNCE);
         };
 
@@ -140,41 +134,40 @@ export function applyOldPRSplitMode(
     }
   }
 
-  // === DEFAULT LOGIC (PR COMMENTS) ===
-  // Force show writeArea (CSS can't override hidden attribute)
-  saveOriginalStyle(writeArea, styles);
-  writeArea.removeAttribute("hidden");
-  setStyle(writeArea, "display", "block");
+  function calculateTextareaHeightAndApplyToPreview(
+    textarea: HTMLTextAreaElement,
+  ) {
+    // Update preview height to match textarea dynamically
+    const textareaHeight = calculateTextareaHeightOldUI(textarea);
+    setStyle(previewArea, "height", `${textareaHeight}px`);
+  }
 
-  // Force show preview (CSS positioning won't work if element is hidden)
-  saveOriginalStyle(previewArea, styles);
-  setStyle(previewArea, "display", "block");
+  function resetPreviewBodyMinHeightWithDelay() {
+    // Reset min-height on preview body after refresh
+    setTimeout(() => {
+      resetPreviewBodyMinHeight(previewArea, styles);
+    }, TIMINGS.PREVIEW_BODY_MIN_HEIGHT_RESET_DELAY);
+  }
+  // === DEFAULT LOGIC (PR COMMENTS) ===
 
   // Set initial preview height to match textarea (DYNAMIC - must stay in JS)
   const textarea = writeArea.querySelector<HTMLTextAreaElement>(
     SELECTORS.TEXTAREA,
   );
-  if (textarea) {
-    const textareaHeight = calculateTextareaHeightOldUI(textarea);
-    setStyle(previewArea, "height", `${textareaHeight}px`);
-  }
+  if (textarea) calculateTextareaHeightAndApplyToPreview(textarea);
 
   // Simulate click on Preview tab to refresh content
   clickPreviewTab(wrapper);
 
   // Reset min-height on preview body AFTER preview refreshes (when element appears)
-  setTimeout(() => {
-    resetPreviewBodyMinHeight(previewArea, styles);
-  }, TIMINGS.PREVIEW_BODY_MIN_HEIGHT_RESET_DELAY);
+  resetPreviewBodyMinHeightWithDelay();
 
   // Setup auto-refresh: watch textarea changes
   if (textarea) {
     let refreshTimeout: ReturnType<typeof setTimeout>;
 
     const handleTextareaChange = () => {
-      // Update preview height to match textarea dynamically
-      const textareaHeight = calculateTextareaHeightOldUI(textarea);
-      setStyle(previewArea, "height", `${textareaHeight}px`);
+      calculateTextareaHeightAndApplyToPreview(textarea);
 
       // Debounce: refresh preview 500ms after user stops typing
       clearTimeout(refreshTimeout);
@@ -182,9 +175,7 @@ export function applyOldPRSplitMode(
         clickPreviewTab(wrapper);
 
         // Reset min-height on preview body after refresh
-        setTimeout(() => {
-          resetPreviewBodyMinHeight(previewArea, styles);
-        }, TIMINGS.PREVIEW_BODY_MIN_HEIGHT_RESET_DELAY);
+        resetPreviewBodyMinHeightWithDelay();
       }, TIMINGS.PREVIEW_REFRESH_DEBOUNCE);
     };
 

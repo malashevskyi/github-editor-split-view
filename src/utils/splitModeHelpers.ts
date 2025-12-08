@@ -6,7 +6,7 @@ import { LAYOUT } from "../constants/layout";
  * Calculate textarea height for OLD PR UI.
  *
  * WHY: OLD PR UI doesn't use max-height, textarea grows dynamically.
- * We need to use actual rendered height (offsetHeight) to sync with preview.
+ * We need to use actual rendered height (offsetHeight) to sync with preview to make it the same height and enable vertical scrollbar.
  */
 export function calculateTextareaHeightOldUI(
   textarea: HTMLTextAreaElement,
@@ -27,7 +27,7 @@ export function calculateTextareaHeightOldUI(
 }
 
 /**
- * Simulate click on Preview tab to refresh preview content.
+ * (Old UI) Simulate click on Preview tab to refresh preview content.
  *
  * WHY: When split mode is activated, the preview content may be stale.
  * GitHub only updates preview when the Preview tab is clicked.
@@ -129,23 +129,6 @@ export function setStyle(
   value: string,
 ): void {
   element.style.setProperty(property, value, "important");
-}
-
-/**
- * Hide all children except specified elements.
- */
-export function hideOtherChildren(
-  wrapper: HTMLElement,
-  keepVisible: (HTMLElement | null)[],
-  styles: Map<HTMLElement, string>,
-): void {
-  const children = Array.from(wrapper.children) as HTMLElement[];
-  children.forEach((child) => {
-    if (!keepVisible.includes(child)) {
-      saveOriginalStyle(child, styles);
-      setStyle(child, "display", "none");
-    }
-  });
 }
 
 /**

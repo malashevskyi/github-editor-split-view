@@ -1,19 +1,8 @@
 /**
  * Layout dimension constants used in split mode.
- *
- * WHY: Centralizing layout values makes them consistent and tunable.
- * These control how write area and preview are sized in split mode.
  */
 
 export const LAYOUT = {
-  /**
-   * Grid columns for split view: 50% write, 50% preview.
-   *
-   * WHY 50/50: Equal space for both areas provides balanced workflow.
-   * User can see full context while typing without excessive scrolling.
-   */
-  SPLIT_COLUMNS: "50% 50%",
-
   /**
    * Maximum height for textarea and preview areas.
    *

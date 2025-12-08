@@ -16,9 +16,6 @@ interface FormatSymbols {
  *
  * The isMultilineFormat flag tells us whether to apply formatting to
  * each line individually (lists, quotes) or to the whole selection (bold, italic).
- *
- * This prevents code duplication across formatText and formatContentEditable,
- * ensuring both textarea and CodeMirror editors use the same markdown syntax.
  */
 export function getFormatSymbols(formatType: string): FormatSymbols {
   switch (formatType) {

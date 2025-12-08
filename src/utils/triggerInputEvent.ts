@@ -16,8 +16,9 @@
  * would show old content until user types something.
  */
 export function triggerInputEvent(
-  inputElement: HTMLTextAreaElement | HTMLInputElement,
+  inputElement: HTMLTextAreaElement | HTMLInputElement | HTMLElement,
+  event?: "input" | "change",
 ): void {
-  const inputEvent = new Event("input", { bubbles: true });
+  const inputEvent = new Event(event || "input", { bubbles: true });
   inputElement.dispatchEvent(inputEvent);
 }

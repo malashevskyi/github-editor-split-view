@@ -36,7 +36,10 @@ const initializeSplitView = () => {
       tabContainer = wrapper.querySelector<HTMLElement>(
         SELECTORS.TAB_CONTAINER_OLD_PR,
       );
-      isOldPRUI = !!tabContainer;
+      isOldPRUI =
+        !!tabContainer ||
+        wrapper.classList.contains("js-previewable-comment-form") ||
+        wrapper.classList.contains("CommentBox");
     }
 
     // If not found, try to find tab container in README editor
@@ -82,7 +85,10 @@ const initializeSplitView = () => {
     const root = createRoot(reactRootContainer);
     root.render(
       <React.StrictMode>
-        <App editorWrapper={wrapper} />
+        <App
+          editorWrapper={wrapper}
+          viewType={isReadmeEditor ? "readme" : isOldPRUI ? "old-pr" : "new-ui"}
+        />
       </React.StrictMode>,
     );
   });

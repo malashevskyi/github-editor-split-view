@@ -5,17 +5,15 @@ import {
   findPreviewArea,
   findReadmeScrollContainer,
 } from "../utils/editorSelectors";
-import { SELECTORS } from "../constants/selectors";
-import {
-  saveOriginalStyle,
-  hideOtherChildren,
-} from "../utils/splitModeHelpers";
+import { saveOriginalStyle } from "../utils/splitModeHelpers";
 import {
   applyReadmeSplitMode,
   setupReadmeResizeListener,
 } from "../utils/splitModeReadme";
 import { applyOldPRSplitMode } from "../utils/splitModeOldPR";
 import { applyNewUISplitMode } from "../utils/splitModeNewUI";
+
+export type ViewType = "readme" | "old-pr" | "new-ui";
 
 /**
  * Applies split-view layout using CSS Grid/Flexbox when split mode is active.
@@ -33,53 +31,45 @@ import { applyNewUISplitMode } from "../utils/splitModeNewUI";
 export function useSplitMode(
   editorWrapper: HTMLElement | null,
   isSplit: boolean,
+  viewType: ViewType,
 ) {
   // Store original style attributes to restore later
   const originalStyles = useRef(new Map<HTMLElement, string>());
+  const isReadmeEditor = viewType === "readme";
+  const isOldPRUI = viewType === "old-pr";
+  const isNewUI = viewType === "new-ui";
 
   useEffect(() => {
     if (!editorWrapper) return;
 
+    const writeArea = findWriteArea(editorWrapper);
+    const previewArea = findPreviewArea(editorWrapper);
+
     if (isSplit) {
       const styles = originalStyles.current;
       saveOriginalStyle(editorWrapper, styles);
-
-      const header = findHeader(editorWrapper);
-      const writeArea = findWriteArea(editorWrapper);
-      const previewArea = findPreviewArea(editorWrapper);
-      const readmeScrollContainer = findReadmeScrollContainer(editorWrapper);
 
       if (!writeArea || !previewArea) {
         console.warn("[useSplitMode] Missing writeArea or previewArea");
         return;
       }
 
-      // Detect UI type and apply appropriate styles
-      const isReadmeEditor = !!readmeScrollContainer;
-      const isOldPRUI =
-        editorWrapper.classList.contains("js-previewable-comment-form") ||
-        editorWrapper.classList.contains("CommentBox");
+      const readmeScrollContainer = isReadmeEditor
+        ? findReadmeScrollContainer(editorWrapper)
+        : null;
 
       // Add data attribute for UI type to enable CSS-based styling
       if (isReadmeEditor) {
         editorWrapper.setAttribute("data-split-view-type", "readme");
       } else if (isOldPRUI) {
         editorWrapper.setAttribute("data-split-view-type", "old-pr");
-      } else {
+      } else if (isNewUI) {
         editorWrapper.setAttribute("data-split-view-type", "new-ui");
       }
 
-      // Hide all children except header, writeArea, and previewArea
-      // EXCEPT for OLD PR UI - it manages visibility internally
-      if (!isOldPRUI) {
-        hideOtherChildren(
-          editorWrapper,
-          [header, writeArea, previewArea],
-          styles,
-        );
-      }
-
       let cleanup: (() => void) | undefined;
+
+      const header = findHeader(editorWrapper);
 
       if (isReadmeEditor && readmeScrollContainer) {
         // README: Grid on CodeMirror, flex layout
@@ -104,32 +94,9 @@ export function useSplitMode(
           header,
           styles,
         );
-      } else {
+      } else if (isNewUI) {
         // NEW UI (Issues/Comments): Grid on writeArea
-        applyNewUISplitMode(
-          editorWrapper,
-          writeArea,
-          previewArea,
-          header,
-          styles,
-        );
-      }
-
-      // Hide "Show Diff" button in README split mode
-      if (isReadmeEditor) {
-        const showDiffLabel = editorWrapper.querySelector<HTMLElement>(
-          SELECTORS.SHOW_DIFF_BUTTON,
-        );
-        if (showDiffLabel) {
-          const container = showDiffLabel.closest<HTMLElement>(
-            SELECTORS.SHOW_DIFF_CONTAINER,
-          );
-          if (container) {
-            saveOriginalStyle(container, styles);
-            container.style.setProperty("opacity", "0", "important");
-            container.style.setProperty("pointer-events", "none", "important");
-          }
-        }
+        applyNewUISplitMode(writeArea, previewArea, header, styles);
       }
 
       return cleanup;
@@ -148,9 +115,6 @@ export function useSplitMode(
       editorWrapper.removeAttribute("data-split-view-type");
 
       // Move previewArea back to wrapper if it was moved
-      const writeArea = findWriteArea(editorWrapper);
-      const previewArea = findPreviewArea(editorWrapper);
-
       if (writeArea && previewArea && writeArea.contains(previewArea)) {
         if (writeArea.nextSibling) {
           editorWrapper.insertBefore(previewArea, writeArea.nextSibling);

@@ -4,21 +4,13 @@ import { saveOriginalStyle, setStyle } from "./splitModeHelpers";
 
 /**
  * Apply split mode styles for NEW UI (Issues/Comments).
- * Grid positioning is handled by CSS, but we must force display values in JS
- * because GitHub adds inline display:none and .d-none classes that CSS can't override.
  */
 export function applyNewUISplitMode(
-  wrapper: HTMLElement,
   writeArea: HTMLElement,
   previewArea: HTMLElement,
   header: HTMLElement | null,
   styles: Map<HTMLElement, string>,
 ): void {
-  // Clean up any wrapper styles (CSS handles layout)
-  wrapper.style.removeProperty("display");
-  wrapper.style.removeProperty("grid-template-columns");
-  wrapper.style.removeProperty("grid-template-rows");
-
   saveOriginalStyle(writeArea, styles);
 
   const span = writeArea.querySelector<HTMLElement>(SELECTORS.TEXTAREA_SPAN);

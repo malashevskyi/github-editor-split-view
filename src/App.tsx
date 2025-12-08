@@ -2,18 +2,19 @@ import React, { useEffect, useState } from "react";
 import { SplitButton } from "./components/SplitButton";
 import { Toolbar } from "./components/Toolbar";
 import { useGitHubPreviewRefresh } from "./hooks/useGitHubPreviewRefresh";
-import { useSplitMode } from "./hooks/useSplitMode";
+import { useSplitMode, type ViewType } from "./hooks/useSplitMode";
 import { useWrapperTabs } from "./hooks/useWrapperTabs";
 
 interface AppProps {
   editorWrapper: HTMLElement;
+  viewType: ViewType;
 }
 
-const App: React.FC<AppProps> = ({ editorWrapper }) => {
+const App: React.FC<AppProps> = ({ editorWrapper, viewType }) => {
   const { isPreviewActive } = useWrapperTabs(editorWrapper);
   const [isSplitMode, setSplitMode] = useState(false);
 
-  useSplitMode(editorWrapper, isSplitMode);
+  useSplitMode(editorWrapper, isSplitMode, viewType);
   useGitHubPreviewRefresh(editorWrapper, isSplitMode);
 
   /**
@@ -25,11 +26,17 @@ const App: React.FC<AppProps> = ({ editorWrapper }) => {
    * - Preview element gets removed from its position but split styles remain
    * - Text overlaps and layout breaks
    *
-   * SOLUTION: Detect Write/Edit/Preview tab clicks and automatically turn off split mode.
+   * SOLUTION:
+   * It is not enough to use isPreviewActive change due to race conditions
+   * We need to detect Write/Edit/Preview tab clicks and automatically turn off split mode.
    */
   useEffect(() => {
     const handleTabClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
+
+      // If the click was made by a script (e.g., our auto-refresh in Old PR),
+      // then event.isTrusted will be false. We ignore such clicks.
+      if (!event.isTrusted) return;
 
       if (
         ["Edit", "Write", "Preview"].includes(target.textContent?.trim()) &&

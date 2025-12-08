@@ -4,6 +4,7 @@ import {
   unformatText,
   applyFormatting,
 } from "./formattingHelpers";
+import { triggerInputEvent } from "./triggerInputEvent";
 
 /**
  * Applies markdown formatting to contenteditable elements (README editor).
@@ -12,12 +13,7 @@ import {
  * contenteditable <div> instead of a <textarea>. CodeMirror doesn't expose
  * its EditorView API on the DOM element, so we can't use CodeMirror's APIs.
  *
- * PROBLEM: We need to make toolbar buttons work, but:
- * - Can't use textarea.value (it's not a textarea)
- * - Can't use CodeMirror API (not exposed)
- * - Must use browser's native Selection API instead
- *
- * SOLUTION: Work with the DOM directly using:
+ * SOLUTION: Work with the DOM directly:
  * - window.getSelection() - get what text is selected
  * - Range API - manipulate text within the selection
  * - createTextNode() - insert formatted text
@@ -30,9 +26,6 @@ import {
  * 3. Create new text node with formatting
  * 4. Insert it in the right place
  * 5. Restore the selection
- *
- * This makes the extension work on README files where GitHub uses
- * CodeMirror, even though we can't access CodeMirror's JavaScript API.
  *
  * @param formatType The markdown format to apply
  * @param contentEditableElement The CodeMirror contenteditable div
@@ -75,9 +68,7 @@ export function formatContentEditable(
       selection.addRange(newRange);
 
       // Notify GitHub/CodeMirror that content changed
-      contentEditableElement.dispatchEvent(
-        new Event("input", { bubbles: true }),
-      );
+      triggerInputEvent(contentEditableElement);
       return;
     }
 
@@ -112,10 +103,8 @@ export function formatContentEditable(
     selection.addRange(newRange);
 
     // Trigger events to notify GitHub/CodeMirror
-    contentEditableElement.dispatchEvent(new Event("input", { bubbles: true }));
-    contentEditableElement.dispatchEvent(
-      new Event("change", { bubbles: true }),
-    );
+    triggerInputEvent(contentEditableElement);
+    triggerInputEvent(contentEditableElement, "change");
     contentEditableElement.focus();
   } catch (error) {
     console.error("[formatContentEditable] Error during formatting:", error);

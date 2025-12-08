@@ -15,18 +15,6 @@ import {
  * 2. We clone the toolbar to keep it visible
  * 3. Cloned buttons lose their original event listeners
  *
- * So we need to re-implement the formatting logic ourselves for textareas.
- *
- * HOW IT WORKS:
- * 1. Get current selection (what text is highlighted)
- * 2. Check if already formatted → if yes, remove formatting (toggle off)
- * 3. If not formatted → add markdown symbols around selection
- * 4. Restore cursor position so user can continue typing
- * 5. Trigger 'input' event so GitHub's preview updates
- *
- * This makes our toolbar buttons behave identically to GitHub's native ones,
- * but they work even when GitHub's toolbar is hidden.
- *
  * @param formatType The markdown format to apply (bold, italic, etc.)
  * @param textarea The textarea element to format
  */

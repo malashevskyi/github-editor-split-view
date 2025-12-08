@@ -2,16 +2,6 @@ import { FORMAT_TYPES } from "../constants/formatTypes";
 
 /**
  * Shared formatting logic helpers.
- *
- * WHY: Both textarea (formatText.ts) and contenteditable (formatContentEditable.ts)
- * need the same logic for:
- * - Detecting if text is already formatted (to toggle off)
- * - Removing formatting symbols
- * - Applying formatting to single/multiline text
- *
- * Instead of duplicating this logic in two places (80+ lines each),
- * we extract it here. This ensures both editor types behave identically
- * and makes bug fixes easier (fix once, works everywhere).
  */
 
 /**
@@ -20,9 +10,6 @@ import { FORMAT_TYPES } from "../constants/formatTypes";
  * WHY: Formatting buttons should work as toggles:
  * - Click "Bold" on normal text → adds **text**
  * - Click "Bold" on **text** → removes **, leaving text
- *
- * This gives users an intuitive way to remove formatting without
- * manually deleting symbols, matching GitHub's native behavior.
  */
 export function shouldUnformat(
   selectedText: string,
@@ -48,8 +35,7 @@ export function shouldUnformat(
  * Removes formatting symbols from text.
  *
  * WHY: When unformatting, we need to cleanly remove the markdown symbols
- * without leaving extra spaces or partial symbols. Simple substring
- * math based on prefix/suffix length does this reliably.
+ * without leaving extra spaces or partial symbols.
  */
 export function unformatText(
   selectedText: string,
@@ -78,9 +64,6 @@ export function unformatText(
  *
  * 4. Empty selection just inserts symbols:
  *    "" → "****" (user can type between the *)
- *
- * This function handles all these cases, preventing us from writing
- * the same if/else logic in multiple files.
  */
 export function applyFormatting(
   selectedText: string,

@@ -31,9 +31,6 @@ const DEBOUNCE_DELAY = 1000;
  * - Cause UI jank (slow network)
  * - Waste bandwidth
  *
- * 1 second delay means preview updates shortly after user stops typing,
- * giving real-time feel without performance issues.
- *
  * This hook only runs for README editor (CodeMirror). Issues/comments
  * use GitHub's built-in preview refresh.
  */
