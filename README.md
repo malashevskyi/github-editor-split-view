@@ -1,6 +1,6 @@
 # GitHub Split View Extension
 
-**A browser extension that enables a side-by-side (Split View) editor for Issues, Comments, and README files.**
+**A browser extension that enables a side-by-side (Split View) editor for Issues & Discussions & Pull Requests, Descriptions & Comments, and README files.**
 
 ### 🛑 Problem
 
@@ -16,6 +16,7 @@ This extension injects a **Split / Unsplit** control directly into the interface
 
 - ✅ **Issue** description & comments
 - ✅ **Pull Request** description & comments
+- ✅ **Discussions** description & comments
 - ✅ **README** files (and other markdown files)
 
 #### 💡 Why split on the Preview tab?
