@@ -210,6 +210,11 @@ html body div[class^="MarkdownEditor-module"] span[class^="prc-Spinner-Box"] {
   min-height: 0 !important;
 }
 
+/* Hide "Loading preview" in old ui preview tab after editor updates */
+.js-preview-body p:not([dir="auto"]) {
+  display: none;
+}
+
 /* ----------------------------------------------------------------------------
    NEW UI (Issues/Comments) - data-split-view-type="new-ui"
    ----------------------------------------------------------------------------
